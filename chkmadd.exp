@@ -1,0 +1,356 @@
+#! /usr/bin/expect
+
+set version       "0.1.1.2004072917"
+set copy          "2004"
+set mail          "mehl@PointedEars.de"
+set mail_feedback "chkmadd.exp@PointedEars.de"
+set latest_uri    "http://PointedEars.de/tools/network/chkmadd/" 
+
+# Exit codes
+set E_NO_ERROR                 0
+set E_ADDRESS_CANNOT_DELIVER   1
+set E_ADDRESS_DONT_KNOW        2
+set E_UNKNOWN_HOST             3
+set E_ERROR                  255
+
+# SMTP reply codes from RFC 2821, section 4.2.3
+set SMTP_STATUS           211
+  # System status, or system help reply
+set SMTP_HELP_MSG         214
+  # Help message
+set SMTP_READY            220
+  # <domain> Service ready
+set SMTP_CLOSE            221
+  # <domain> Service closing transmission channel
+set SMTP_OK               250
+  # Requested mail action okay, completed
+set SMTP_FORWARD          251
+  # User not local; will forward to <forward-path> (See section 3.4)
+set SMTP_NO_VERIFY        252
+  # Cannot VRFY user, but will accept message and attempt delivery
+  #   (See section 3.5.3)
+set SMTP_DATA_INPUT       354
+  # Start mail input; end with <CRLF>.<CRLF>
+set SMTP_NA_CLOSE         421
+  # <domain> Service not available, closing transmission channel
+  # (This may be a reply to any command if the service knows it
+  # must shut down)
+set SMTP_TEMP_NA          450
+  # Requested mail action not taken: mailbox unavailable (e.g., mailbox busy)
+set SMTP_LOCAL_ERROR      451
+  # Requested action aborted: local error in processing
+set SMTP_OUT_OF_SPACE     452
+  # Requested action not taken: insufficient system storage
+set SMTP_COMMAND_NA       500
+  # Syntax error, command unrecognized
+  # (This may include errors such as command line
+  # too long)
+set SMTP_SYNTAX_ERROR     501
+  # Syntax error in parameters or arguments
+set SMTP_UNKNOWN_COMMAND  502
+  # Command not implemented (see section 4.2.4)
+set SMTP_BAD_SEQUENCE     503
+  # Bad sequence of commands (e.g. MAIL before HELO)
+set SMTP_PARAM_NA         504
+  # Command parameter not implemented
+set SMTP_MAILBOX_NA       550
+  # Requested action not taken: mailbox unavailable
+  # (e.g., mailbox not found, no access, or
+  # command rejected for policy reasons)
+set SMTP_USR_NOT_LOCAL    551
+  # User not local; please try <forward-path>
+  # (See section 3.4)
+set SMTP_SRV_OUT_OF_SPACE 552
+  # Requested mail action aborted: exceeded storage allocation
+set SMTP_INVALID_BOX_NAME 553
+  # Requested action not taken: mailbox name not allowed
+  # (e.g., mailbox syntax incorrect)
+set SMTP_TRANSACTION_FAIL 554
+  # Transaction failed
+  # (Or, in the case of a connection-opening response, "No SMTP service here")
+
+# somehow "\r\n" does not work
+set CRLF "\r"
+
+proc leadingCh {s {len 1} {ch " "}} {
+  while {[string length "$s"] < $len} {
+    set s "$ch$s"
+  }
+  return "$s"
+}
+
+puts "chkmadd.exp $version -- (C) $copy  Thomas Lahn <$mail>
+Distributed under the terms of the GNU General Public License (GPL).
+See COPYING file or <http://www.fsf.org/copyleft/gpl.html> for details."
+
+proc bugs {} {
+  global mail_feedback
+  
+  puts "Report bugs to <$mail_feedback>.
+"
+}
+
+if {$argc < 2 || [lindex $argv 0] == "-V"} {
+  if {[lindex $argv 0] != "-V"} {
+    puts "
+Usage: [file tail $argv0] \[ -V | REMOTE_HOST EMAIL_ADDRESS \[TIMEOUT\] \]...
+
+Verifies EMAIL_ADDRESS by talking SMTP to REMOTE_HOST via Telnet.
+This script is usually invoked by the \"chkmadd\" program which
+determines the respective mail exchanger (MX) for e-mail addresses.
+If available, enter \"chkmadd\" for details.
+
+  -V              Display version information and exit.
+  REMOTE_HOST     Host name or Internet address of the mail exchanger.
+  EMAIL_ADDRESS   E-mail address to be checked.
+  TIMEOUT         Number of seconds after a delay is considered a timeout.
+
+Exit Codes
+
+  [leadingCh $E_NO_ERROR 3]\tAddress verification positive or version info\
+ successfully retrieved
+  [leadingCh $E_ADDRESS_CANNOT_DELIVER 3]\tCannot deliver to this address on this\ server
+  [leadingCh $E_ADDRESS_DONT_KNOW 3]\tUnable to verify address
+  [leadingCh $E_UNKNOWN_HOST 3]\tUnknown host
+  [leadingCh $E_ERROR 3]\tGeneral error"
+  }  
+  
+  puts "
+Requires the \"Expect\" scripting language,
+a Tcl (Tool command language) extension:
+<http://expect.nist.gov/>
+
+Thanks to Christoph 'Mehdorn' Weber <ich-reweb@gmx.net>
+for puns and other kinds of support.
+
+The latest version is available from
+<$latest_uri>."
+  bugs
+
+  if {[lindex $argv 0] == "-V"} {
+    exit $E_NO_ERROR
+  }          
+  exit $E_ERROR
+}
+
+bugs
+
+proc logout {exit_code} {
+  global CRLF
+  global SMTP_OK        
+  global SMTP_CLOSE        
+  global chatty
+  global TELNET_CLOSED
+  
+  expect {
+    -nocase -re "$TELNET_CLOSED$chatty" {
+      exit $exit_code
+    }
+    default {
+      send "RSET$CRLF"
+      expect {
+        "\n$SMTP_OK " {}
+        default {}
+      }    
+      send "QUIT$CRLF"
+      expect "\n$SMTP_CLOSE "
+    }  
+  }  
+  exit $exit_code
+}
+
+# default is 10
+if {$argc >= 3} {
+  set timeout [lindex $argv 2]
+}
+
+# telnet hangs if not set
+set env(TERM) vt100
+
+set host [lindex $argv 0]
+set addr [lindex $argv 1]
+
+# Allow MTAs to be chatty, i.e. wait for the complete status message
+# (incl. multi-line), not only the status code.  Useful if output should
+# be displayed or logged.  (TODO: A future --fast option will set chatty "",
+# --no-multi will set chatty " .*"; maybe --chatty will set chatty to its
+# argument.  POSIX-conform command-line parsing required before that.)
+set chatty ".*"
+
+set TELNET_CLOSED "connection closed|timed out"
+
+spawn telnet -- "$host" smtp
+trap {logout $E_ERROR} {SIGINT SIGTERM}
+
+expect {
+  -nocase -re "$TELNET_CLOSED$chatty" {
+    exit $E_ADDRESS_CANNOT_DELIVER
+  }
+  -nocase -re "(trying|connected to)" {
+    exp_continue
+  }
+  -nocase "unknown host" {
+    exp_send "\003"
+    puts "telnet: unknown host"
+    exit $E_UNKNOWN_HOST
+  }
+  -re "\n$SMTP_READY$chatty" {
+    send "VRFY $addr$CRLF"
+    expect {
+      -nocase -re "$TELNET_CLOSED$chatty" {
+        exit $E_ADDRESS_DONT_KNOW
+      }
+      -re "\n$SMTP_OK$chatty" {
+        # address is valid, exit successfully
+        logout $E_NO_ERROR
+      }
+      -re "\n($SMTP_FORWARD|$SMTP_USR_NOT_LOCAL|$SMTP_NA_CLOSE)$chatty" {
+        logout $E_ADDRESS_DONT_KNOW
+      }
+      -re "\n$SMTP_INVALID_BOX_NAME$chatty" {
+        logout $E_ADDRESS_CANNOT_DELIVER
+      }
+      -re "\n($SMTP_MAILBOX_NA|$SMTP_NO_VERIFY|$SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_UNKNOWN_COMMAND|$SMTP_PARAM_NA|$SMTP_LOCAL_ERROR)$chatty" {
+        # cannot VRFY, continue
+      }
+      default {}
+    }    
+    
+    send "MAIL FROM:<$addr>$CRLF"
+    expect {
+      -nocase -re "$TELNET_CLOSED$chatty" {
+        exit $E_ADDRESS_CANNOT_DELIVER
+      }
+      -re "\n$SMTP_OK$chatty" {}
+      -re "\n($SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_MAILBOX_NA|$SMTP_INVALID_BOX_NAME)$chatty" {
+ #  -re "\n$SMTP_SYNTAX_ERROR$chatty" {
+ ## TODO: RFC 2821, sections 4.1.1.2 and 4.1.1.3 state that address
+ ##       (reverse-path / forward-path) must be in "<...>"; it is
+ ##       unknown whether all MTAs follow the RFC in this regard as
+ ##       some accept *also* without "<...>" -- some may not accept
+ ##       "<...>" at all.
+ #  
+ # Bad address syntax
+ #        set addr "<$addr>"
+ #        exp_continue
+ #      }
+ #              "\n$SMTP_SYNTAX_ERROR " {
+ #                set addr "<$addr>"
+ #                send "MAIL FROM:$addr$CRLF"
+ #              }
+        logout $E_ADDRESS_CANNOT_DELIVER
+      }
+      -re "\n($SMTP_NA_CLOSE|$SMTP_SRV_OUT_OF_SPACE|$SMTP_LOCAL_ERROR)$chatty" {
+        logout $E_ADDRESS_DONT_KNOW
+      }
+      -re "\n$SMTP_OUT_OF_SPACE$chatty" {
+        logout $E_NO_ERROR
+      }
+      -re "\n$SMTP_BAD_SEQUENCE$chatty" {
+        # Polite people say HELO first
+        # TODO: Send unsuspicious HELO so we are not blacklisted and not blocked
+        send "HELO 127.0.0.1$CRLF"
+        expect {
+          -nocase -re "$TELNET_CLOSED$chatty" {
+            exit $E_ADDRESS_CANNOT_DELIVER
+          }
+          -re "\n$SMTP_OK$chatty" {
+            send "MAIL FROM:<$addr>$CRLF"
+            expect {
+              -nocase -re "$TELNET_CLOSED$chatty" {
+                exit $E_ADDRESS_CANNOT_DELIVER
+              }
+              -re "\n$SMTP_OK$chatty" {}
+              -re "\n($SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_MAILBOX_NA|$SMTP_INVALID_BOX_NAME|$SMTP_BAD_SEQUENCE)$chatty" {
+                 logout $E_ADDRESS_CANNOT_DELIVER
+              }
+              -re "\n($SMTP_NA_CLOSE|$SMTP_SRV_OUT_OF_SPACE|$SMTP_LOCAL_ERROR)$chatty" {
+                logout $E_ADDRESS_DONT_KNOW
+              }
+              -re "\n$SMTP_OUT_OF_SPACE$chatty" {
+                logout $E_NO_ERROR
+              }
+              -re "\n($SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_PARAM_NA|$SMTP_MAILBOX_NA)$chatty" {
+                logout $E_ADDRESS_CANNOT_DELIVER
+              }
+             default {
+                # Invalid status code
+                logout $E_ADDRESS_CANNOT_DELIVER
+              } 
+            }  
+          }
+          -re "\n($SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_PARAM_NA|$SMTP_MAILBOX_NA)$chatty" {
+            logout $E_ADDRESS_CANNOT_DELIVER
+          }
+          -re "\n$SMTP_NA_CLOSE$chatty" {
+            logout $E_ADDRESS_DONT_KNOW
+          }
+          default {
+            # Invalid status code
+            logout $E_ADDRESS_CANNOT_DELIVER
+          } 
+        }        
+      }
+      default {
+        logout $E_ADDRESS_CANNOT_DELIVER
+      }
+    }  
+
+    send "RCPT TO:<$addr>$CRLF"
+    expect {
+      -nocase -re "$TELNET_CLOSED$chatty" {
+        exit $E_ADDRESS_CANNOT_DELIVER
+      }
+      -re "\n($SMTP_OK|$SMTP_OUT_OF_SPACE|$SMTP_TEMP_NA)$chatty" {
+        # Recipient EXISTS
+
+## TODO: Currently we do not send "DATA" to prevent unsolicited e-mails
+##        
+#        send "DATA$CRLF"
+#        expect {
+#          "\n$SMTP_DATA_INPUT " {
+             # Start mail input; end with <CRLF>.<CRLF>
+#            send "This e-mail was sent as a probe by"
+#            send "$latest_uri$CRLF"
+#            send "due to a buggy SMTP server failing to obey the RSET command."
+#            send "You can safely ignore it.$CRLF"
+#            send "Send e-mail to <$optout_address> to avoid further messages.$CRLF"
+#            send ".$CRLF"
+#            expect {
+#              "\n$SMTP_OK " {
+                 # Queued mail for delivery
+               logout $E_NO_ERROR
+#              }
+#              default {
+#                logout $E_ADDRESS_CANNOT_DELIVER
+#              }  
+#            }        
+#          }
+#          default {
+#            logout $E_ADDRESS_CANNOT_DELIVER
+#          }          
+#        }        
+      }
+      -re "\n($SMTP_NA_CLOSE|$SMTP_FORWARD|$SMTP_USR_NOT_LOCAL|$SMTP_SRV_OUT_OF_SPACE|$SMTP_LOCAL_ERROR|$SMTP_INVALID_BOX_NAME|$SMTP_TRANSACTION_FAIL)$chatty" {
+        # SMTP_INVALID_BOX_NAME for anti-spam, see HELO
+        logout $E_ADDRESS_DONT_KNOW
+      }
+      -re "\n($SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_BAD_SEQUENCE|$SMTP_MAILBOX_NA)$chatty" {
+        logout $E_ADDRESS_CANNOT_DELIVER
+      }
+      default {
+        # Invalid status code
+        logout $E_ADDRESS_CANNOT_DELIVER
+      }
+    }      
+  }
+  -re "\n$SMTP_NA_CLOSE$chatty" {
+    logout $E_ADDRESS_DONT_KNOW
+  }
+  -re "\n$SMTP_TRANSACTION_FAIL$chatty" {
+    logout $E_ADDRESS_CANNOT_DELIVER
+  }
+  default {
+    logout $E_ADDRESS_DONT_KNOW
+  }
+}

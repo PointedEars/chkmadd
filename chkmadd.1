@@ -1,0 +1,287 @@
+\" chkmadd.1 - the *roff document processor source for the chkmadd manual
+\"
+\" This file is part of PointedEars' chkmadd.
+\" Copyright (C) 2004  Thomas Lahn <chkmadd@PointedEars.de>
+\"
+\" Permission is granted to copy, distribute and/or modify this document
+\" under the terms of the GNU Free Documentation License, Version 1.2
+\" or any later version published by the Free Software Foundation;
+\" with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+\" Texts.  A copy of the license is available on the Web[1] or
+\" from the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+\" Boston, MA  02111-1307, USA.
+\" 
+\" [1] <http://www.gnu.org/licenses/licenses.html#FDL>
+\"
+\" You may contact the author by:
+\" e-mail: chkmadd@PointedEars.de
+\" snail mail:
+\"   Thomas Lahn
+\"   Warschauer Strasse 1a/0403
+\"   D-99089 Erfurt
+\"   Federal Republic of Germany
+
+.TH chkmadd 1 "21 JUNE 2004" "chkmadd 0.1.2.2004062116" "Networking Tools" 
+
+
+.SH NAME
+chkmadd \- CHecK Mail ADDress
+
+
+.SH SYNOPSIS
+
+.B chkmadd
+.RI [ OPTION ]...
+.I EMAIL_ADDRESS...
+
+
+.SH DESCRIPTION
+
+.B chkmadd
+verifies
+.IR EMAIL_ADDRESS (es)
+by retrieving the mail exchangers (\fSMX\fPs) for their domain part(s)
+with
+.BR host (1)
+and
+.BR grep (1),
+and accessing them via
+.SM SMTP
+.BR telnet (1).
+From version
+.B 0.1.2.2004062116
+on, it also tries the A record of all domains part(s) if no MX record
+for either domain is present.
+
+.PP
+From version
+.B 0.1.2.2004021702
+on, this program supports an
+.BR expect (1)
+script for talking
+.SM SMTP
+to \fSMX\fPs automagically.  That script is specified as follows: It
+MUST take up to three arguments.  The first two arguments, specifying the
+.SM MX
+and the e-mail address to be verified, MUST be mandatory, i.e. the script
+MUST return an exit code
+.B "greater than 2"
+if one or both are missing.  The third argument MAY optionally specify
+the default timeout in seconds.  If it does not handle an option (i.e. an
+argument starting with "-"), it MUST ignore it.  It MUST return an exit
+code of
+.B 0
+if the e-mail address could be verified positive and an exit code of
+.B 1
+if not. It MAY return an exit code of
+.B 2
+to indicate that it is not known whether the passed string
+specifies a mailbox on this server.  It MUST return an exit code
+.B "greater than 2"
+if other errors occur.  It MAY generate arbitrary output in either
+case.  It MUST NOT affect the execution of calling programs directly.
+(Builds
+.B 2004022414
+and later of the
+.BR chkmadd.exp (1)
+script contained in the distribution meet these requirements.)
+.PP        
+If
+.BR expect (1)
+or the script described above is not available, you are required to type
+SMTP commands for verification (see
+.SM RFC
+2821, especially the \fBVRFY\fP, \fBMAIL\fP,
+.B HELO
+and
+.B RCPT
+commands.)  Note that you SHOULD NOT use this script in a non-interactive
+environment in this case.
+.BR telnet (1)
+may time out but the delay could interrupt that environment, and you will
+receive no useful feedback anyway.  Use the
+.B -a
+option to prevent that.
+
+
+.SH OPTIONS
+
+.IP "\fB-a\fP, \fB--auto\fP" 
+Force automatic verification via the
+.BR expect (1)
+\fISCRIPT\fP.
+
+.IP "\fB-d\fP, \fB--force-dupes\fP"
+Force MXs with different hostname but same IP address to be asked for
+\fIEMAIL_ADDRESS\fP.
+.B (TODO)
+
+.IP "\fB-E\fP, \fB--expect\fP \fIPROGRAM\fP"
+Specify the
+.BR expect (1)
+.I PROGRAM
+to be used.  The default is \fI/usr/bin/expect\fP.
+
+.IP "\fB-e\fP, \fB--expect-script\fP \fISCRIPT\fP"
+Specify the
+.BR expect (1)
+.I SCRIPT
+to be used.  The default is
+.br
+.BR chkmadd.exp (1)
+in the
+.B chkmadd
+program directory.
+
+.IP "\fB-f\fP, \fB--file\fP [\fIFILE\fP]"
+Read
+.IR EMAIL_ADDRESS (es)
+from \fIFILE\fP.  The default is the standard
+input which can be equally specified as "-".
+
+.IP "\fB-h\fP, \fB--help\fP"
+Display this help screen and exit with code \fB255\fP.
+
+.IP "\fB-t\fP, \fB--timeout\fP \fISECONDS\fP"
+Specify the timeout for the
+.BR expect (1)
+\fISCRIPT\fP.
+
+.IP "\fB-V\fP, \fB--version\fP"
+Display version information and exit.
+
+.IP "\fB-v\fP, \fB--verbose\fP"
+Be verbose.
+
+.IP "\fB-y\fP, \fB--no-vrfy\fP"
+Skip
+.SM VRFY
+command.
+.B (TODO)
+
+.IP "\fIEMAIL_ADDRESS\fP"
+E-mail address to be verified. May be delimited by "<" and ">".
+Separate e-mail addresses by space (\fB$IFS\fP in general).
+
+
+.SH "EXIT CODES"
+
+.TP
+.B "  0"
+Address verification positive or version info successfully retrieved
+
+.TP
+.B "  1"
+No address
+
+.TP
+.B "  2"
+Unable to verify address
+
+.TP
+.B "  3"
+No address: all specified MXs are invalid
+
+.TP
+.B "255"
+General error
+
+
+.SH ENVIRONMENT
+
+.TP
+.B TERM
+If not "raw" and
+.BR stty (1)
+returns the size, use colored output with ANSI escape sequences.
+
+
+.SH FILES
+
+.TP
+.I /usr/bin/expect
+Default location of the
+.BR expect (1)
+program.
+.TP
+.I ./chkmadd.exp
+Default location of the
+.BR chkmadd.exp (1)
+script.
+
+
+.SH "SEE ALSO" 
+
+.BR host (1),
+.BR telnet (1),
+.SM RFC
+2821 -- Simple Mail Transfer Protocol (\fSSMTP\fP)
+.br
+<\fIhttp://www.rfc-editor.org/rfc/rfc2821.txt\fP>,
+.br
+.BR expect (1)
+<\fIhttp://expect.nist.gov/\fP>,
+.BR chkmadd.exp (1)
+
+
+.SH BUGS
+None known.  Please report bugs to <chkmadd@PointedEars.de>.
+
+
+.SH NOTES
+Tested with GNU/Linux 2.4.25/6 \fB[1]\fP (Knoppix 3.4 \fB[2]\fP and
+Debian \fB[3]\fP Testing), and Cygwin 1.5.9-1 and 1.5.10(0.116/4/2) \fB[4]\fP
+on Microsoft Windows 2000 Professional, Service Pack 4 \fB[5]\fP.
+
+.PP
+\fB[1]\fP <\fIhttp://kernel.org/\fP>
+.br
+\fB[2]\fP <\fIhttp://knopper.net/knoppix/\fP>
+.br
+\fB[3]\fP <\fIhttp://debian.org/\fP>
+.br
+\fB[4]\fP <\fIhttp://cygwin.com/\fP>
+.br
+\fB[5]\fP <\fIhttp://www.microsoft.com/windows2000/\fP>
+
+.SH "LEGAL NOTICE"
+Copyright (c) 2003, 2004  Thomas Lahn <mehl@PointedEars.de>
+.PP
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of the License, or (at your
+option) any later version.
+.PP
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+(GPL) for more details.
+
+You should have received a copy of the GNU GPL along with this program
+(\fICOPYING\fP file); if not, go to [1] or write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+.PP
+[1] <\fIhttp://www.gnu.org/licenses/licenses.html#GPL\fP>
+.PP
+.br
+--
+.br
+Standard shell script disclaimer blurb thing:
+
+This script is a hack.  It's brute force.  It's horrible.
+It doesn't use Artificial Intelligence.  It doesn't use Virtual Reality.
+It's not perl.  It's not python.  It probably won't work unchanged on
+the "other" thousands of unices.  But it worksforme.  --ramiro
+.br
+(from \fI/usr/local/mozilla/run-mozilla.sh\fP)
+
+
+.SH CREDITS
+Thanks to Christoph 'Mehdorn' Weber <ich-reweb@gmx.net> for test cases
+and to Don Libes <libes@nist.gov> for the great \fIexpect\fP(1) tool.
+
+
+.SH AVAILABILITY
+The author's latest version can be obtained from
+.br
+<\fIhttp://PointedEars.de/tools/network/chkmadd/\fP>.

@@ -1,0 +1,198 @@
+\" chkmadd.exp.1
+\" The *roff document processor source for the chkmadd.exp manual
+\"
+\" This file is part of PointedEars' chkmadd.
+\" Copyright (C) 2004  Thomas Lahn <chkmadd@PointedEars.de>
+\"
+\" Permission is granted to copy, distribute and/or modify this document
+\" under the terms of the GNU Free Documentation License, Version 1.2
+\" or any later version published by the Free Software Foundation;
+\" with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+\" Texts.  A copy of the license is available on the Web[1] or
+\" from the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+\" Boston, MA  02111-1307, USA.
+\" 
+\" [1] <http://www.gnu.org/licenses/licenses.html#FDL>
+\"
+\" You may contact the author by:
+\" e-mail: chkmadd@PointedEars.de
+\" snail mail:
+\"   Thomas Lahn
+\"   Warschauer Strasse 1a/0403
+\"   D-99089 Erfurt
+\"   Federal Republic of Germany
+
+
+.TH chkmadd.exp 1 "29 JULY 2004" "chkmadd.exp 0.1.1.2004072917" "Networking Tools" 
+
+
+.SH NAME
+chkmadd.exp \- CHecK Mail ADDress with EXPect
+
+.SH SYNOPSIS
+
+.B chkmadd.exp
+.RB "[ " -V " |"
+.I REMOTE_HOST EMAIL_ADDRESS
+[\fITIMEOUT\fP] ]...
+
+
+.SH DESCRIPTION
+
+Verifies
+.I EMAIL_ADDRESS
+by talking
+.SM SMTP
+to
+.I REMOTE_HOST
+via
+.BR telnet (1).
+Requires the
+.BR expect (1)
+scripting language, a
+.SM Tcl
+(Tool command language) extension. This script is usually invoked by the
+.BR chkmadd (1)
+program which determines the respective mail exchanger (\fSMX\fP) for
+e-mail addresses to be used for
+.IR REMOTE_HOST .
+If available, read the
+.BR chkmadd (1)
+manpage or enter
+.B chkmadd
+for details.
+
+
+.SH OPTIONS
+
+.IP "\fB-V\fP"
+Display version information and exit.
+
+.IP "\fIREMOTE_HOST\fP"
+Host name or Internet address of the mail exchanger.
+
+.IP "\fIEMAIL_ADDRESS\fP"
+E-mail address to be checked.
+
+.IP "\fITIMEOUT\fP"
+Number of seconds after a delay is considered a timeout.
+The default is \fB10\fP.
+
+
+.SH "EXIT CODES"
+
+.TP
+.B "  0"
+Address verification positive or version info successfully retrieved
+
+.TP
+.B "  1"
+Cannot deliver to this address on this server
+
+.TP
+.B "  2"
+Unable to verify address
+
+.TP
+.B "  3"
+Unknown host
+
+.TP
+.B "255"
+General error
+
+
+.SH ENVIRONMENT
+
+.TP
+.B TERM
+Is set to "vt100" temporarily to prevent
+.BR telnet (1)
+from hanging.
+
+
+.SH FILES
+
+.TP
+.I /usr/bin/expect
+Default location of the
+.BR expect (1)
+program.
+
+.SH "SEE ALSO" 
+
+.BR expect (1) 
+<\fIhttp://expect.nist.gov/\fP>,
+.BR telnet (1),
+.SM RFC
+2821 -- Simple Mail Transfer Protocol (\fSSMTP\fP)
+<\fIhttp://www.rfc-editor.org/rfc/rfc2821.txt\fP>
+
+
+.SH BUGS
+None known.  Please report bugs to <chkmadd.exp@PointedEars.de>.
+
+
+.SH NOTES
+Tested with
+.BR expect (1)
+version 5.41.0 on GNU/Linux 2.4.25/6 \fB[1]\fP (Knoppix 3.4 \fB[2]\fP
+and Debian \fB[3]\fP Testing), and version 20030128-1 on Cygwin 1.5.9-1
+and 1.5.10(0.116/4/2) \fB[4]\fP on Microsoft Windows 2000 Professional,
+Service Pack 4 \fB[5]\fP.
+
+.PP
+\fB[1]\fP <\fIhttp://kernel.org/\fP>
+.br
+\fB[2]\fP <\fIhttp://knopper.net/knoppix/\fP>
+.br
+\fB[3]\fP <\fIhttp://debian.org/\fP>
+.br
+\fB[4]\fP <\fIhttp://cygwin.com/\fP>
+.br
+\fB[5]\fP <\fIhttp://www.microsoft.com/windows2000/\fP>
+
+
+.SH "LEGAL NOTICE"
+Copyright (c) 2004  Thomas Lahn <mehl@PointedEars.de>
+.PP
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of the License, or (at your
+option) any later version.
+.PP
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+(GPL) for more details.
+
+You should have received a copy of the GNU GPL along with this program
+(\fICOPYING\fP file); if not, go to [1] or write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+.PP
+[1] <\fIhttp://www.gnu.org/licenses/licenses.html#GPL\fP>
+.PP
+.br
+\-\-
+.br
+Standard shell script disclaimer blurb thing:
+
+This script is a hack.  It's brute force.  It's horrible.
+It doesn't use Artificial Intelligence.  It doesn't use Virtual Reality.
+It's not perl.  It's not python.  It probably won't work unchanged on
+the "other" thousands of unices.  But it worksforme.  --ramiro
+.br
+(from \fI/usr/local/mozilla/run-mozilla.sh\fP)
+
+
+.SH CREDITS
+Thanks to Christoph 'Mehdorn' Weber <ich-reweb@gmx.net> for puns and
+other kinds of support, and to Don Libes <libes@nist.gov> for the great
+\fIexpect\fP(1) tool.
+
+
+.SH AVAILABILITY
+The author's latest version can be obtained from
+.br
+<\fIhttp://PointedEars.de/tools/network/chkmadd/\fP>.
+
