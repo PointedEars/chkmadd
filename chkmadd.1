@@ -1,7 +1,7 @@
 \" chkmadd.1 - the *roff document processor source for the chkmadd manual
 \"
 \" This file is part of PointedEars' chkmadd.
-\" Copyright (C) 2004  Thomas Lahn <chkmadd@PointedEars.de>
+\" Copyright (C) 2003-2005  Thomas Lahn <chkmadd@PointedEars.de>
 \"
 \" Permission is granted to copy, distribute and/or modify this document
 \" under the terms of the GNU Free Documentation License, Version 1.2
@@ -21,7 +21,7 @@
 \"   D-99089 Erfurt
 \"   Federal Republic of Germany
 
-.TH chkmadd 1 "21 JUNE 2004" "chkmadd 0.1.2.2004062116" "Networking Tools" 
+.TH chkmadd 1 "2 FEBRUARY 2005" "chkmadd 0.1.4.2005010914" "Networking Tools" 
 
 
 .SH NAME
@@ -60,8 +60,12 @@ on, this program supports an
 .BR expect (1)
 script for talking
 .SM SMTP
-to \fSMX\fPs automagically.  That script is specified as follows: It
-MUST take up to three arguments.  The first two arguments, specifying the
+to \fSMX\fPs automagically.  That script is specified as follows (uppercased
+keywords are to be are to be interpreted as described in RFC 2119):
+
+.RS 2
+.PP
+It MUST take up to three arguments.  The first two arguments, specifying the
 .SM MX
 and the e-mail address to be verified, MUST be mandatory, i.e. the script
 MUST return an exit code
@@ -80,11 +84,15 @@ specifies a mailbox on this server.  It MUST return an exit code
 .B "greater than 2"
 if other errors occur.  It MAY generate arbitrary output in either
 case.  It MUST NOT affect the execution of calling programs directly.
-(Builds
+.RE
+
+.PP
+Builds
 .B 2004022414
 and later of the
-.BR chkmadd.exp (1)
-script contained in the distribution meet these requirements.)
+.BR chkmadd.exp (3)
+script contained in the distribution meet these requirements.
+
 .PP        
 If
 .BR expect (1)
@@ -103,16 +111,35 @@ receive no useful feedback anyway.  Use the
 .B -a
 option to prevent that.
 
+.PP
+From version
+.B 0.1.4.2005010914
+on, this script supports a
+.B chkmadd
+server to listen for incoming requests if the
+.BR chkmadd.exp (1)
+program can be executed on that server.  See the
+.B -l
+and
+.B -s
+options for details.
 
 .SH OPTIONS
 
 .IP "\fB-a\fP, \fB--auto\fP" 
 Force automatic verification via the
 .BR expect (1)
-\fISCRIPT\fP.
+\fISCRIPT\fP.  If the
+.BR expect (1)
+program or the
+.I SCRIPT
+is not available, returns with exit code
+.B 2
+for all addresses.
+.B (TODO)
 
 .IP "\fB-d\fP, \fB--force-dupes\fP"
-Force MXs with different hostname but same IP address to be asked for
+Force MXs with different host name but same IP address to be asked for
 \fIEMAIL_ADDRESS\fP.
 .B (TODO)
 
@@ -137,10 +164,64 @@ program directory.
 Read
 .IR EMAIL_ADDRESS (es)
 from \fIFILE\fP.  The default is the standard
-input which can be equally specified as "-".
+input which can be equally specified as `-'.
 
 .IP "\fB-h\fP, \fB--help\fP"
-Display this help screen and exit with code \fB255\fP.
+Display this help screen and exit with code
+.BR 255 .
+
+.IP "\fB-l\fP, \fB--listen\fP"
+Listen for parameters from stdin or on the
+.I PORT
+specified with
+.BR -p .
+Corresponds remotely with the locally given
+.B -s
+option.  For security reasons, this works together with
+.B -p
+only if the
+.I SERVER
+provides both
+.BR expect (1)
+and the
+.BR chkmadd.exp (1)
+program, i.e.
+.B -a
+is given implicitly.
+.B (TODO)
+        
+.IP "\fB-p\fP, \fB--port\fP \fIPORT\fP"
+Specify the port where either requests should be addressed to
+.RB ( -s )
+or where the
+.B chkmadd
+.I SERVER
+should listen on
+.RB ( -l ).
+The default is telnet(23)/tcp.
+.B (TODO)
+
+.IP "\fB-s\fP, \fB--server\fP \fISERVER\fP"
+Specify a
+.B chkmadd
+\fISERVER\fP to be used instead of the local program, introduced primarily
+to allow clients within blacklisted IP address ranges (such as computers
+of dial-up users having dynamic IP addresses) to use servers that are not
+blacklisted.  The server either must be configured to run the remote
+.BR chkmadd (1)
+program with the
+.B -l
+option alone upon receipt of a request on
+.I PORT
+(using
+.BR inetd (8),
+.BR tcpd (8)
+and the like) or have it already running and
+.BR --listen ing
+on the port specified with
+.B -p
+(preferably as a system daemon).
+.B (TODO)
 
 .IP "\fB-t\fP, \fB--timeout\fP \fISECONDS\fP"
 Specify the timeout for the
@@ -148,7 +229,8 @@ Specify the timeout for the
 \fISCRIPT\fP.
 
 .IP "\fB-V\fP, \fB--version\fP"
-Display version information and exit.
+Display version information and exit with code
+.BR 255 .
 
 .IP "\fB-v\fP, \fB--verbose\fP"
 Be verbose.
@@ -160,7 +242,7 @@ command.
 .B (TODO)
 
 .IP "\fIEMAIL_ADDRESS\fP"
-E-mail address to be verified. May be delimited by "<" and ">".
+E-mail address to be verified. May be delimited by `<' and `>'.
 Separate e-mail addresses by space (\fB$IFS\fP in general).
 
 
@@ -190,11 +272,29 @@ General error
 .SH ENVIRONMENT
 
 .TP
+.B CHKMADD_PORT
+Specifies the 
+.I PORT
+to be used by default.  If set,
+.B -p
+is given implicitly.
+.B (TODO)
+
+.TP
+.B CHKMADD_SERVER
+Specifies the
+.B chkmadd
+.I SERVER
+to be used by default.  If set,
+.B -s
+is given implicitly.
+.B (TODO)
+
+.TP
 .B TERM
-If not "raw" and
+If not `raw' and
 .BR stty (1)
 returns the size, use colored output with ANSI escape sequences.
-
 
 .SH FILES
 
@@ -213,25 +313,33 @@ script.
 .SH "SEE ALSO" 
 
 .BR host (1),
-.BR telnet (1),
+.BR grep (1),
+.BR telnet (1)
+
+.PP
 .SM RFC
-2821 -- Simple Mail Transfer Protocol (\fSSMTP\fP)
-.br
-<\fIhttp://www.rfc-editor.org/rfc/rfc2821.txt\fP>,
-.br
+2119 -- Key words for use in RFCs to Indicate Requirement Levels,
+S. Bradner, March 1997.  <\fIhttp://www.ietf.org/rfc/rfc2119.txt\fP>
+
+.PP
+.SM RFC
+2821 -- Simple Mail Transfer Protocol (\fSSMTP\fP),
+J. Klensin, April 2001.  <\fIhttp://www.ietf.org/rfc/rfc2821.txt\fP>
+
+.PP
 .BR expect (1)
 <\fIhttp://expect.nist.gov/\fP>,
 .BR chkmadd.exp (1)
-
 
 .SH BUGS
 None known.  Please report bugs to <chkmadd@PointedEars.de>.
 
 
 .SH NOTES
-Tested with GNU/Linux 2.4.25/6 \fB[1]\fP (Knoppix 3.4 \fB[2]\fP and
-Debian \fB[3]\fP Testing), and Cygwin 1.5.9-1 and 1.5.10(0.116/4/2) \fB[4]\fP
-on Microsoft Windows 2000 Professional, Service Pack 4 \fB[5]\fP.
+Tested with GNU/Linux 2.4.25/6/9/.30 \fB[1]\fP (Knoppix 3.4 \fB[2]\fP and
+Debian 3.x \fB[3]\fP Testing/Unstable), and Cygwin 1.5.9-1 and
+1.5.10(0.116/4/2) \fB[4]\fP on Microsoft Windows 2000 Professional,
+Service Pack 4 \fB[5]\fP.
 
 .PP
 \fB[1]\fP <\fIhttp://kernel.org/\fP>
@@ -245,7 +353,7 @@ on Microsoft Windows 2000 Professional, Service Pack 4 \fB[5]\fP.
 \fB[5]\fP <\fIhttp://www.microsoft.com/windows2000/\fP>
 
 .SH "LEGAL NOTICE"
-Copyright (c) 2003, 2004  Thomas Lahn <mehl@PointedEars.de>
+Copyright (c) 2003-2005  Thomas Lahn <mehl@PointedEars.de>
 .PP
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
