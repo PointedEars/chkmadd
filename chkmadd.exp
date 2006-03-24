@@ -222,14 +222,20 @@ expect {
       }
       default {}
     }    
-    
-    send "MAIL FROM:<$addr>$CRLF"
+  
+## TODO: Sending with the recipient address allows for a validity test before
+## RCPT TO, but may raise suspicion towards the mailbox owner; we don't want
+## that to happen, so it is disabled for now.  May be required to be re-enabled
+## if there is an MTA that does not accept <> or does not say "no" on RCPT TO
+## for not existing mailboxes.  See also MAIL FROM after HELO below.
+# send "MAIL FROM:<$addr>$CRLF"
+    send "MAIL FROM:<>$CRLF"
     expect {
       -nocase -re "$TELNET_CLOSED$chatty" {
         exit $E_ADDRESS_CANNOT_DELIVER
       }
       -re "\n$SMTP_OK$chatty" {}
-      -re "\n($SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_MAILBOX_NA|$SMTP_INVALID_BOX_NAME)$chatty" {
+      -re "\n($SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_INVALID_BOX_NAME)$chatty" {
  #  -re "\n$SMTP_SYNTAX_ERROR$chatty" {
  ## TODO: RFC 2821, sections 4.1.1.2 and 4.1.1.3 state that address
  ##       (reverse-path / forward-path) must be in "<...>"; it is
@@ -262,7 +268,9 @@ expect {
             exit $E_ADDRESS_CANNOT_DELIVER
           }
           -re "\n$SMTP_OK$chatty" {
-            send "MAIL FROM:<$addr>$CRLF"
+## see first MAIL FROM
+# send "MAIL FROM:<$addr>$CRLF"
+            send "MAIL FROM:<>$CRLF"
             expect {
               -nocase -re "$TELNET_CLOSED$chatty" {
                 exit $E_ADDRESS_CANNOT_DELIVER
