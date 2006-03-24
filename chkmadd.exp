@@ -1,7 +1,7 @@
 #! /usr/bin/expect
 
-set version       "0.1.1.2004072917"
-set copy          "2004"
+set version       "0.1.3.2006032405"
+set copy          "2004-2006"
 set mail          "mehl@PointedEars.de"
 set mail_feedback "chkmadd.exp@PointedEars.de"
 set latest_uri    "http://PointedEars.de/tools/network/chkmadd/" 
@@ -79,7 +79,8 @@ proc leadingCh {s {len 1} {ch " "}} {
   return "$s"
 }
 
-puts "chkmadd.exp $version -- (C) $copy  Thomas Lahn <$mail>
+puts "chkmadd.exp $version
+Copyright (C) $copy  Thomas Lahn <$mail>
 Distributed under the terms of the GNU General Public License (GPL).
 See COPYING file or <http://www.fsf.org/copyleft/gpl.html> for details."
 
