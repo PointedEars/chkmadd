@@ -259,8 +259,13 @@ expect {
       -re "\n$SMTP_OUT_OF_SPACE$chatty" {
         logout $E_NO_ERROR
       }
-      -re "\n$SMTP_BAD_SEQUENCE$chatty" {
-        # Polite people say HELO first
+      -re "\n($SMTP_BAD_SEQUENCE|$SMTP_UNKNOWN_COMMAND|$SMTP_MAILBOX_NA)$chatty" {
+        # "Polite people say HELO first" (recommended against by the RFC)
+        # NOTE: There are very buggy MTAs out there (e.g. Spiderweb ESMTP)
+        #       which say they don't even *know* MAIL FROM before HELO,
+        #       hence the alternation.
+        # TODO: SMTP_MAILBOX_NA only here (and not with
+        #       E_ADDRESS_CANNOT_DELIVER above) when MAIL FROM:<> was used.
         # TODO: Send unsuspicious HELO so we are not blacklisted and not blocked
         send "HELO 127.0.0.1$CRLF"
         expect {
