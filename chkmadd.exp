@@ -217,8 +217,8 @@ expect {
       -re "\n$SMTP_INVALID_BOX_NAME$chatty" {
         logout $E_ADDRESS_CANNOT_DELIVER
       }
-      -re "\n($SMTP_MAILBOX_NA|$SMTP_NO_VERIFY|$SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_UNKNOWN_COMMAND|$SMTP_PARAM_NA|$SMTP_LOCAL_ERROR)$chatty" {
-        # cannot VRFY, continue
+      -re "\n($SMTP_MAILBOX_NA|$SMTP_NO_VERIFY|$SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_UNKNOWN_COMMAND|$SMTP_PARAM_NA|$SMTP_LOCAL_ERROR|$SMTP_BAD_SEQUENCE)$chatty" {
+        # cannot VRFY, continue; SMTP_BAD_SEQUENCE only for graceful degradation
       }
       default {}
     }    
