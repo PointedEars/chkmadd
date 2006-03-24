@@ -177,7 +177,7 @@ set addr [lindex $argv 1]
 # argument.  POSIX-conform command-line parsing required before that.)
 set chatty ".*"
 
-set TELNET_CLOSED "connection closed|timed out"
+set TELNET_CLOSED "not found|unable|no route|connection closed|timed out"
 
 spawn telnet -- "$host" smtp
 trap {logout $E_ERROR} {SIGINT SIGTERM}
@@ -191,8 +191,15 @@ expect {
   }
   -nocase "unknown host" {
     exp_send "\003"
-    puts "telnet: unknown host"
     exit $E_UNKNOWN_HOST
+  }
+  -nocase "not known" {
+    exp_send "\003"
+    exit $E_ADDRESS_CANNOT_DELIVER
+  }
+  -nocase "connection refused" {
+    exp_send "\003"
+    exit $E_ADDRESS_CANNOT_DELIVER
   }
   -re "\n$SMTP_READY$chatty" {
     send "VRFY $addr$CRLF"
