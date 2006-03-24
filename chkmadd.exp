@@ -116,7 +116,7 @@ Exit Codes
   }  
   
   puts "
-Requires the \"Expect\" scripting language,
+Requires the Expect scripting language,
 a Tcl (Tool command language) extension:
 <http://expect.nist.gov/>
 
