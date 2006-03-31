@@ -37,10 +37,10 @@ latest_uri='http://PointedEars.de/tools/network/chkmadd/'
 #
 # ChangeLog
 # ==========
-# 
+#
 # See the ChangeLog text file for further information.
 #
-# 
+#
 # TO DO (0.1.2RC1)
 # =================
 #
@@ -75,7 +75,7 @@ leadingCh ()
   local s=$1
 
   while [ "${#s}" -lt ${2:-1} ]
-  do  
+  do
     s="${3:- }$s"
   done
   echo "$s"
@@ -86,7 +86,7 @@ _help()
   echo "\
 ${extd}$1${norm}
   [${extd}-Vadhvy${norm}] [${extd}-E${norm} PROGRAM] [${extd}-e${norm} SCRIPT]\
- [${extd}-f${norm} [FILE]] [${extd}-l${norm}|${extd}-s${norm} SERVER] [${extd}-p${norm} PORT] 
+ [${extd}-f${norm} [FILE]] [${extd}-l${norm}|${extd}-s${norm} SERVER] [${extd}-p${norm} PORT]
   [${extd}-t${norm} SECONDS] EMAIL_ADDRESS...
 
 Verify EMAIL_ADDRESS(es) by retrieving the mail exchangers (MXs) and, if
@@ -108,7 +108,7 @@ and a ${extd}chkmadd${norm} server to listen for incoming requests are supported
     }
 
    echo "\
-  
+
   ${extd}-a${norm}, ${extd}--auto${norm}                  Force automatic verification\
  via the Expect
                                 SCRIPT.  ${extd}(TODO)${norm}
@@ -145,10 +145,10 @@ and a ${extd}chkmadd${norm} server to listen for incoming requests are supported
  and exit.
   ${extd}-v${norm}, ${extd}--verbose${norm}               Be verbose.
   ${extd}-y${norm}, ${extd}--no-vrfy${norm}               Skip VRFY command.\
-  ${extd}(TODO)${norm} 
+  ${extd}(TODO)${norm}
   EMAIL_ADDRESS               E-mail address to be verified. May be delimited
                               by \"<\" and \">\".  Separate e-mail addresses by
-                              space (\$IFS in general)."  
+                              space (\$IFS in general)."
 
   if [ "$getopt_type" = 'short' ]; then
 # _XPG=1
@@ -185,7 +185,7 @@ if [ "$TERM" != "raw" ] && stty size >/dev/null 2>&1; then
   stat="... "
 else
   esc=""
-  tab=" "        
+  tab=" "
   extd=""
   warn=""
   done=""
@@ -234,7 +234,7 @@ fi
 
 #echo "$extd
 #Debug output for POSIX conform command-line
-#parsing (will require -vv in the release).  
+#parsing (will require -vv in the release).
 #
 #Original arguments: $*$norm" >&2
 if `getopt -T >/dev/null 2>&1` ; [ $? = 4 ] ; then
@@ -314,7 +314,7 @@ exp_script_exe=0
 [ -f "${_exp_script}" ] && have_exp_script=1
 [ -x "${_exp_script}" ] && exp_script_exe=1
 [ $have_exp -eq 1 -a $have_exp_script -eq 1 ] && use_expect=1
- 
+
 [ $verbose -eq 1 -o $help -eq 1 -o $show_version -eq 1 ] && echo "\
 ${extd}chkmadd ${ver} -- (C) ${copy}  Thomas Lahn <${mail}>${norm}
 Distributed under the terms of the GNU General Public License (GPL).
@@ -324,7 +324,7 @@ bugs_info ()
 {
   echo "Report bugs to <${mail_feedback}>.
 "
-} 
+}
 [ $verbose -eq 1 -a $show_version -eq 0 ] && bugs_info
 
 j=0
@@ -350,7 +350,7 @@ fi
 
 [ $help -eq 1 -o $show_version -eq 1 ] && {
   [ $show_version -eq 0 ] && echo && _help "$appname"
- 
+
   echo "\
 
 The latest version is available from
@@ -366,17 +366,17 @@ IFS="
 
 if [ ${#addresses[@]} -gt 0 ]; then
   [ $verbose -eq 1 ] && echo "E-mail address(es) to check:"
-else  
+else
   echo "No e-mail addresses to check."
   exit_code=$E_ERROR
-fi  
+fi
 [ $verbose -eq 1 ] && {
   ( echo ${addresses[@]} ) | $fold
   [ $timeout ] && {
     echo
     echo "Using a $timeout second(s) timeout."
-  }  
-}  
+  }
+}
 
 for i in ${addresses[@]}
 do
@@ -391,28 +391,44 @@ do
     echo "Verifying <$i> ..." >&2
   fi
 
-  if [ -z "`echo "$i" | grep @`" ]; then
+atext='[A-Za-z0-9!#-'\''*+/=?^_\`{|}~-]'
+dot_atom_text="$atext+(\\.$atext+)*"
+dot_atom=$dot_atom_text
+
+  if [ -z "`echo "$i" | egrep "${dot_atom}@${dot_atom}"`" ]; then
     if [ $verbose -eq 1 ]; then
-      echo "The @ character is missing, thus <$i>
-is definitely not a (valid) e-mail address." | $fmt
+      ( echo "<$i>
+is definitely not a (valid) e-mail address since
+it lacks compliance with RFC 2822, section 3.4.1." ) | $fmt
     else
-      echo "<$i>${tab}-${tab}NO_AT"
+      echo "<$i>${tab}-${tab}INVALID_FORMAT"
     fi
     exit_code=$E_ADDRESS_DOESNT_EXIST
     continue
   fi
-  
-  if [ -z "${i%%@*}" ]; then
-    if [ $verbose -eq 1 ]; then
-      echo "The local-part is missing, thus <$i>
-is definitely not a (valid) e-mail address." | $fmt
-    else
-      echo "<$i>${tab}-${tab}NO_LOCAL_PART"
-    fi
-    exit_code=$E_ADDRESS_DOESNT_EXIST
-    continue
-  fi
-  
+
+#  if [ -z "`echo "$i" | grep @`" ]; then
+#    if [ $verbose -eq 1 ]; then
+#      ( echo "The @ character is missing, thus <$i>
+#is definitely not a (valid) e-mail address." ) | $fmt
+#    else
+#      echo "<$i>${tab}-${tab}NO_AT"
+#    fi
+#    exit_code=$E_ADDRESS_DOESNT_EXIST
+#    continue
+#  fi
+
+#  if [ -z "${i%%@*}" ]; then
+#    if [ $verbose -eq 1 ]; then
+#      ( echo "The local-part is missing, thus <$i>
+#is definitely not a (valid) e-mail address." ) | $fmt
+#    else
+#      echo "<$i>${tab}-${tab}NO_LOCAL_PART"
+#    fi
+#    exit_code=$E_ADDRESS_DOESNT_EXIST
+#    continue
+#  fi
+
   # pass domain part of e-mail address to `host'
   domain=${i##*@}
   if [ -z "$domain" ]; then
@@ -431,7 +447,7 @@ is definitely not a (valid) e-mail address." | $fmt
     if [ $verbose -eq 1 ]; then
       echo "Mail exchanger(s) for $domain:" >&2
       [ "$domain" != "${i##*@}" ] && echo "none." >&2
-    fi  
+    fi
     mx_query=`host -t MX "${domain}" 2>&1`
     exit_code=$?
     [ ${exit_code} -eq 0 -a -z "`echo "${mx_query}" |
@@ -464,9 +480,9 @@ is definitely not a (valid) e-mail address." | $fmt
       # if we are already at second level
       [ -z "`echo "${domain}" | grep -e '^.\{1,\}\..\{1,\}$'`" ] && break
     done
-      
+
     mxs=`echo "${mx_query}" | head -1 | grep -v 'not '`
-      
+
     if [ -z "${mxs}" ]; then
         echo "None, thus <$i>
 is definitely not an e-mail address (no MX)." | $fmt
@@ -476,7 +492,7 @@ is definitely not an e-mail address (no MX)." | $fmt
       fi
       exit_code=$E_ADDRESS_DOESNT_EXIST
       continue
-    fi  
+    fi
   fi
 
   [ $verbose -eq 1 ] && echo "
@@ -501,14 +517,14 @@ ${mxs}" >&2
           ${_exp_script} "${hosts[$j]}" "$i" $timeout
         else
           ${_exp_script} "${hosts[$j]}" "$i" $timeout >/dev/null
-        fi  
-      else  
+        fi
+      else
         if [ $verbose -eq 1 ]; then
           ${_exp} ${_exp_script} "${hosts[$j]}" "$i" $timeout
         else
           ${_exp} ${_exp_script} "${hosts[$j]}" "$i" $timeout >/dev/null
-        fi  
-      fi  
+        fi
+      fi
       exit_code=$?
       if [ $exit_code -eq 0 ]; then
         if [ $verbose -eq 1 ]; then
@@ -522,7 +538,7 @@ is most certainly an e-mail address." | $fmt
       fi
     else
       telnet -- "${hosts[$j]}" smtp
-    fi  
+    fi
   done
   if [ $use_expect -eq 1 ] && [ $exit_code -ne 0 ]; then
     if [ $verbose -eq 1 ]; then
@@ -546,7 +562,7 @@ could not be verified (reason unknown)." | $fmt;;
         2) echo "<$i>${tab}?${tab}CANNOT_VERIFY";;
         3) echo "<$i>${tab}-${tab}INVALID_MXS";;
         *) echo "<$i>${tab}?${tab}UNKNOWN";;
-      esac  
+      esac
     fi
   fi
 done
