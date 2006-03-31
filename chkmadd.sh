@@ -152,12 +152,12 @@ and a ${extd}chkmadd${norm} server to listen for incoming requests are supported
 
   if [ "$getopt_type" = 'short' ]; then
 # _XPG=1
-    echo "\
+    ( echo "\
 
 Note that the long options are not available on this system, so you
 must use the short options instead.  Also, optional arguments are not
 supported, so if you do not pass an argument to an option, you must
-use \"\" instead." | $fmt
+use \"\" instead." ) | $fmt
 # _XPG=0
   fi
   echo "
@@ -435,8 +435,8 @@ it lacks compliance with RFC 2822, section 3.4.1." ) | $fmt
   domain=${i##*@}
   if [ -z "$domain" ]; then
     if [ $verbose -eq 1 ]; then
-      echo "The domain-part is missing, thus <$i>
-is definitely not a (valid) e-mail address." | $fmt
+      ( echo "The domain-part is missing, thus <$i>
+is definitely not a (valid) e-mail address." ) | $fmt
     else
       echo "<$i>${tab}-${tab}NO_DOMAIN_PART"
     fi
@@ -536,9 +536,9 @@ ${mxs}" >&2
       exit_code=$?
       if [ $exit_code -eq 0 ]; then
         if [ $verbose -eq 1 ]; then
-          echo "
+          ( echo "
 <$i>
-is most certainly an e-mail address." | $fmt
+is most certainly an e-mail address." ) | $fmt
         else
           echo "<$i>${tab}+${tab}OK"
         fi
@@ -551,18 +551,19 @@ is most certainly an e-mail address." | $fmt
   if [ $use_expect -eq 1 ] && [ $exit_code -ne 0 ]; then
     if [ $verbose -eq 1 ]; then
       case $exit_code in
-        1) echo "
+        1)
+        ( echo "
 <$i>
-is apparently not an e-mail address (delivery impossible)." | $fmt;;
-        2) echo "
+is apparently not an e-mail address (delivery impossible)." ) | $fmt;;
+        2) ( echo "
 <$i>
-could not be verified." | $fmt;;
-        3) echo "
+could not be verified." ) | $fmt;;
+        3) ( echo "
 <$i>
-is definitely not an e-mail address (invalid MXs)." | $fmt;;
-        *) echo "
+is definitely not an e-mail address (invalid MXs)." ) | $fmt;;
+        *) ( echo "
 <$i>
-could not be verified (reason unknown)." | $fmt;;
+could not be verified (reason unknown)." ) | $fmt;;
       esac
     else
       case $exit_code in
