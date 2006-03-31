@@ -84,48 +84,16 @@ leadingCh ()
 _help()
 {
   echo "\
-${extd}$1${norm} [${extd}-Vadhvy${norm}] [${extd}-E${norm} PROGRAM]\
- [${extd}-e${norm} SCRIPT] [${extd}-f${norm} [FILE]] [${extd}-t${norm} SECONDS]
- EMAIL_ADDRESS...
+${extd}$1${norm}
+  [${extd}-Vadhvy${norm}] [${extd}-E${norm} PROGRAM] [${extd}-e${norm} SCRIPT]\
+ [${extd}-f${norm} [FILE]] [${extd}-l${norm}|${extd}-s${norm} SERVER] [${extd}-p${norm} PORT] 
+  [${extd}-t${norm} SECONDS] EMAIL_ADDRESS...
 
-Verifies EMAIL_ADDRESS(es) by retrieving the mail exchangers (MXs) for
-their domain part(s) with ${extd}host${norm}(1) and ${extd}grep${norm}(1),\
- and accessing them via
-SMTP ${extd}telnet${norm}(1).  From version ${extd}0.1.2.2004062116${norm}\
- on, it also tries the
-A record of all domains part(s) if no MX record for either domain is
-present.
-  
-From version ${extd}0.1.2.2004021702${norm} on, this script supports an Expect\
- script for
-talking SMTP to MXs automagically.  That script is specified as follows:
-It MUST take up to three arguments.  The first two arguments, specifying
-the MX and the e-mail address to be verified, MUST be mandatory, i.e. the
-script MUST return an exit code greater than $E_ADDRESS_DONT_KNOW if\
- one or both are missing.
-The third argument MAY optionally specify the default timeout in seconds.
-If it does not handle an option (i.e. an argument starting with \"-\"), it
-MUST ignore it.  It MUST return an exit code of $E_NO_ERROR if the e-mail\
- address
-could be verified positive and an exit code of $E_ADDRESS_DOESNT_EXIST if not.\
- It MAY return an
-exit code of $E_ADDRESS_DONT_KNOW to indicate that it is not known whether\
- the passed string
-specifies a mailbox on this server.  It MUST return an exit code greater
-than $E_ADDRESS_DONT_KNOW if other errors occur.  It MAY generate arbitrary\
- output in either
-case.  It MUST NOT affect the execution of calling programs directly.
-(Builds 2004022414 and later of the chkmadd.exp script contained in
-the distribution meet these requirements.)
-        
-If the \"expect\" program or the script described above is not available,
-you are required to type SMTP commands for verification (see RFC 2821,
-especially the VRFY, MAIL, HELO and RCPT commands.)  Note that you SHOULD
-NOT use this script in a non-interactive environment in this case.
-Telnet may time out but the delay could interrupt that environment,
-and you will receive no useful feedback anyway.  Use the ${extd}-a${norm}\
- option
-to prevent that.
+Verify EMAIL_ADDRESS(es) by retrieving the mail exchangers (MXs) and, if
+necessary, the A record, for their domain part(s) and accessing them via
+SMTP ${extd}telnet${norm}(1).  An Expect script for talking SMTP to MXs\
+ automagically
+and a ${extd}chkmadd${norm} server to listen for incoming requests are supported.
 "
 
   echo "Tests showed that the Expect script \"${_exp_script}\" is "
@@ -141,50 +109,48 @@ to prevent that.
 
    echo "\
   
-  ${extd}-a${norm}, ${extd}--auto${norm}           Force automatic verification\
- via the Expect script.
-                          If the \"expect\" program or the script is not
-                          available, returns with exit code\
- ${E_ADDRESS_DONT_KNOW} for all
-                          addresses.  (TODO)
-  ${extd}-d${norm}, ${extd}--force-dupes${norm}    Force MXs with different\
- hostname but same Internet
-                          address to be asked for EMAIL_ADDRESS.  (TODO)
-  ${extd}-E${norm}, ${extd}--expect${norm}         Specify the Expect PROGRAM\
- to be used.  The default
-                          is /usr/bin/expect.
-  ${extd}-e${norm}, ${extd}--expect-script${norm}  Specify the Expect SCRIPT\
- to be used.  The default"
-   echo "\
-                          is
-                          `dirname "$0"`/chkmadd.exp." | $fmt
-   echo "\
-  ${extd}-f${norm}, ${extd}--file${norm}           Read EMAIL_ADDRESS(es) from\
- FILE.  The default is
-                          the standard input which can be equally specified
-                          as \"-\".
-  ${extd}-h${norm}, ${extd}--help${norm}           Display this help screen and\
- exit with code ${E_ERROR}.
-  ${extd}-t${norm}, ${extd}--timeout${norm}        Specify the timeout for the Expect SCRIPT in seconds.
-  ${extd}-V${norm}, ${extd}--version${norm}        Display version information\
- and exit with code ${E_ERROR}.
-  ${extd}-v${norm}, ${extd}--verbose${norm}        Be verbose.
-  ${extd}-y${norm}, ${extd}--no-vrfy${norm}        Skip VRFY command.  (TODO) 
-  EMAIL_ADDRESS         E-mail address to be verified. May be delimited by
-                          \"<\" and \">\".  Separate e-mail addresses by space
-                          (\$IFS in general).
+  ${extd}-a${norm}, ${extd}--auto${norm}                  Force automatic verification\
+ via the Expect
+                                SCRIPT.  ${extd}(TODO)${norm}
+  ${extd}-d${norm}, ${extd}--force-dupes${norm}           Force MXs with different\
+ hostname but same
+                                Internet address to be asked for EMAIL_ADDRESS.
+                                ${extd}(TODO)${norm}
+  ${extd}-E${norm}, ${extd}--expect${norm} PROGRAM        Specify the Expect PROGRAM\
+ to be used.
+  ${extd}-e${norm}, ${extd}--expect-script${norm} SCRIPT  Specify the Expect SCRIPT\
+ to be used.
+  ${extd}-f${norm}, ${extd}--file${norm} FILE             Read EMAIL_ADDRESS(es) from\
+ FILE.  The default
+                                is the standard input which can be equally
+                                specified as \`-'.
+  ${extd}-h${norm}, ${extd}--help${norm}                  Display this help screen and\
+ exit.
+  ${extd}-l${norm}, ${extd}--listen${norm}                Listen for parameters from\
+ stdin or on the PORT
+                                specified with ${extd}-p${norm}.\
+  ${extd}(TODO)${norm}
+  ${extd}-p${norm}, ${extd}--port${norm} PORT             Specify the port\
+ where either requests should
+                                be addressed to (${extd}-s${norm}) or where the\
+ ${extd}chkmadd${norm}
+                                SERVER should listen on (${extd}-l${norm}).\
+  The default
+                                is telnet(23)/tcp.  ${extd}(TODO)${norm}
+  ${extd}-s${norm}, ${extd}--server${norm} SERVER         Specify a ${extd}chkmadd${norm} SERVER to be used instead of
+                                the local program.  ${extd}(TODO)${norm}
+  ${extd}-t${norm}, ${extd}--timeout${norm} TIMEOUT       Specify the TIMEOUT for the Expect SCRIPT in
+                                seconds.
+  ${extd}-V${norm}, ${extd}--version${norm}               Display version information\
+ and exit.
+  ${extd}-v${norm}, ${extd}--verbose${norm}               Be verbose.
+  ${extd}-y${norm}, ${extd}--no-vrfy${norm}               Skip VRFY command.\
+  ${extd}(TODO)${norm} 
+  EMAIL_ADDRESS               E-mail address to be verified. May be delimited
+                              by \"<\" and \">\".  Separate e-mail addresses by
+                              space (\$IFS in general)."  
 
-${extd}Exit Codes${norm}
-
-  ${extd}`leadingCh ${E_NO_ERROR} 3`  ${norm}Address verification positive or\
- version info successfully retrieved
-  ${extd}`leadingCh ${E_ADDRESS_DOESNT_EXIST} 3`  ${norm}No address
-  ${extd}`leadingCh ${E_ADDRESS_DONT_KNOW} 3`  ${norm}Unable to verify address
-  ${extd}`leadingCh ${E_INVALID_MXS} 3`  ${norm}No address: all specified MXs\
- are invalid
-  ${extd}`leadingCh ${E_ERROR} 3`  ${norm}General error"  
-
-  if [ $getopt_type = "short" ]; then
+  if [ "$getopt_type" = 'short' ]; then
 # _XPG=1
     echo "\
 
@@ -274,15 +240,15 @@ fi
 if `getopt -T >/dev/null 2>&1` ; [ $? = 4 ] ; then
   getopt_type=long
 #  echo "getopt(1) type:     enhanced" >&2
-  tmp=`getopt -o vhVadE:e:f::t: \
+  tmp=`getopt -o vhVadE:e:f::p:s:t: \
               -l verbose,help,version,auto,force-dupes,expect:,expect-script:\
-,file::,timeout: \
+,file::,port:,server:,timeout: \
               -n "$appname" \
               -- "$@"`
 else
   getopt_type=short
 #  echo "getopt(1) type:     old" >&2
-  tmp=`getopt vhVadE:e:f: "$@"`
+  tmp=`getopt vhVadE:e:f:p:s:t: "$@"`
 fi
 
 getopt_exit_code=$?
@@ -291,8 +257,10 @@ verbose=0
 show_version=0
 force_auto=0
 force_dupes=0
-file=""
-_exp="/usr/bin/expect"
+file=''
+port=1337
+server=''
+_exp='/usr/bin/expect'
 _exp_script="`dirname "$0"`/chkmadd.exp"
 args=""
 if [ $getopt_exit_code -eq 0 ]; then
@@ -318,6 +286,8 @@ if [ $getopt_exit_code -eq 0 ]; then
       -a | --auto)          force_auto=1; shift;;
       -d | --force-dupes)   force_dupes=1; shift;;
       -f | --file)          shift; file="${1:--}"; shift;;
+      -p | --port)          shift; port=$1; shift;;
+      -s | --server)        shift; server=$1; shift;;
       -t | --timeout)       shift; timeout=$1; shift;;
       --)                   shift; break;;
     esac
@@ -410,6 +380,12 @@ fi
 
 for i in ${addresses[@]}
 do
+  [ -n "$server" ] &&
+  {
+    echo "$i" | nc -q 10 "$server" "$port"
+    continue
+  }
+
   if [ $verbose -eq 1 ]; then
     echo
     echo "Verifying <$i> ..." >&2
