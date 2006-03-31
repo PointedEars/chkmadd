@@ -42,12 +42,16 @@ latest_uri='http://PointedEars.de/tools/network/chkmadd/'
 # See the ChangeLog text file for further information.
 #
 #
-# TO DO (0.1.2RC1)
-# =================
+# TO DO (0.1.5b)
+# ===============
 #
-# * Be IRIX 6.5 compatible
-# * Avoid checking duplicate hosts (same IPv4 address) by default;
+# * Read interactively from stdin on missing arguments (help only on -h)
+# * Send to host $h, port $p with netcat on -s $h -p $p
+# * Read from port $p with netcat on -lp $p
+# * Error if expect script cannot be called on -a
+# * Avoid checking duplicate hosts (same IP address) by default;
 #   allow to override with -d option
+# * Tell chkmadd.exp to skip VFRY command on -y (requires chkmadd.exp update)
 #
 # ----------------------------------------------------------------------------
 
