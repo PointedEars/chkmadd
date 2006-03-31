@@ -1,0 +1,11 @@
+#!/bin/sh
+
+while true
+do
+  nc -lp 1337 | (
+    while read foo
+    do
+      chkmadd -v $foo
+    done
+  )
+done
