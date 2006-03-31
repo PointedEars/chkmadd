@@ -460,7 +460,7 @@ is definitely not a (valid) e-mail address." | $fmt
     [ -z "`echo "${domain}" | egrep '^.+\..+$'`" ] && break
   done
 
-  mxs=`echo "${mx_query}" | grep 'mail\|MX' | grep -v 'not '`
+  mxs=`echo "${mx_query}" | egrep 'mail|MX' | egrep -v '(^|[^.])not? '`
 
   if [ -z "${mxs}" ]; then
     domain=${i##*@}
@@ -487,7 +487,7 @@ is definitely not a (valid) e-mail address." | $fmt
       [ -z "`echo "${domain}" | grep -e '^.\{1,\}\..\{1,\}$'`" ] && break
     done
 
-    mxs=`echo "${mx_query}" | head -1 | grep -v 'not '`
+    mxs=`echo "${mx_query}" | head -1 | grep -ve 'not\{0,1\} '`
 
     if [ -z "${mxs}" ]; then
         echo "None, thus <$i>
