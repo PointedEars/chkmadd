@@ -108,7 +108,7 @@ and a ${extd}chkmadd${norm} server to listen for incoming requests are supported
       echo "So you should either use the -a option or specify the correct path."
     }
 
-   echo "\
+  echo "\
 
   ${extd}-a${norm}, ${extd}--auto${norm}                  Force automatic verification\
  via the Expect
@@ -223,11 +223,12 @@ if [ $COLUMNS -ne 80 ]; then # output is preformatted for 80 cols
     # check for -c|--crown-margin
     chk=`echo x | $fmt -c 2>/dev/null`
     if [ -n "$chk" ]; then
-      fmt=$fmt" -c"
+      fmt="$fmt -c"
     else
       chk=`echo x | $fmt --crown-margin 2>/dev/null`
       [ -n "$chk" ] && fmt="$fmt --crown-margin"
     fi
+#fmt="'$fmt'"
   fi
 fi
 
@@ -240,7 +241,7 @@ fi
 #parsing (will require -vv in the release).
 #
 #Original arguments: $*$norm" >&2
-if `getopt -T >/dev/null 2>&1` ; [ $? = 4 ] ; then
+if `getopt -T >/dev/null 2>&1`; [ $? = 4 ]; then
   getopt_type=long
 #  echo "getopt(1) type:     enhanced" >&2
   tmp=`getopt -o vhVadE:e:f::p:s:t: \
@@ -391,7 +392,7 @@ do
 
   if [ $verbose -eq 1 ]; then
     echo
-    echo "Verifying <$i> ..." >&2
+    echo "Verifying <$i>..." >&2
   fi
 
 atext='[A-Za-z0-9!#-'\''*+/=?^_\`{|}~-]'
