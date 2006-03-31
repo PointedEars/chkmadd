@@ -216,7 +216,7 @@ if [ $COLUMNS -ne 80 ]; then # output is preformatted for 80 cols
     fmt=$fold
   else
     # check for columns
-    fmt="fmt -$COLUMNS"
+    fmt="fmt -w $COLUMNS"
     chk=`echo x | $fmt 2>/dev/null`
     [ -z "$chk" ] && fmt=fmt
     # check for -c|--crown-margin
