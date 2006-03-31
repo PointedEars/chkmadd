@@ -445,8 +445,8 @@ is definitely not a (valid) e-mail address." | $fmt
   while true
   do
     if [ $verbose -eq 1 ]; then
-      echo "Mail exchanger(s) for $domain:" >&2
       [ "$domain" != "${i##*@}" ] && echo "none." >&2
+      echo -n "Mail exchanger(s) for $domain: " >&2
     fi
     mx_query=`host -t MX "${domain}" 2>&1`
     exit_code=$?
@@ -463,12 +463,18 @@ is definitely not a (valid) e-mail address." | $fmt
   mxs=`echo "${mx_query}" | grep 'mail\|MX' | grep -v 'not '`
 
   if [ -z "${mxs}" ]; then
-    test $verbose -eq 1 && echo "None.  Trying A record ..."
-
     domain=${i##*@}
     while true
     do
-      test $verbose -eq 1 -a "$domain" != "${i##*@}" && echo "None." >&2
+      if [ $verbose -eq 1 ]; then
+        if [ "$domain" != "${i##*@}" ]; then
+          echo "none." >&2
+        else
+          echo -n "none.
+\`A' record for $domain: "
+
+        fi
+      fi
       mx_query=`host -t A "${domain}" 2>&1`
       exit_code=$?
       [ ${exit_code} -eq 0 -a -z "`echo "${mx_query}" |
