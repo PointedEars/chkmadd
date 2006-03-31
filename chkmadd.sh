@@ -61,7 +61,7 @@ seq ()
   _start=$1 || 0
   _stop=$2 || $((${_start}+1))
   step=1
-  test -n "$2" -a -n "$3" && step=$2 && _stop=$3
+  [ -n "$2" -a -n "$3" ] && step=$2 && _stop=$3
   i=${_start}
   while [ $i -le ${_stop} ]
   do
@@ -129,10 +129,10 @@ to prevent that.
 "
 
   echo "Tests showed that the Expect script \"${_exp_script}\" is "
-  test ${use_expect} -eq 1 \
+  [ $use_expect -eq 1 ] \
     && echo "${done}available and can be executed${norm}." \
     || {
-      test ${have_exp_script} -eq 1 \
+      [ $have_exp_script -eq 1 ] \
         && echo "${warn}available but cannot be executed since the
 \"${_exp}\" program is missing${norm}." \
         || echo "${warn}not available${norm}."
@@ -200,14 +200,14 @@ use \"\" instead." | $fmt
 
 # from /etc/rc.status
 # check for $COLUMNS
-test -z "$LINES" -o -z "$COLUMNS" && {
+[ -z "$LINES" -o -z "$COLUMNS" ] && {
   eval `stty size 2>/dev/null | (read L C; echo LINES=${L:-24} \
 COLUMNS=${C:-80})`
 }
-test $LINES   -eq 0 && LINES=24
-test $COLUMNS -eq 0 && COLUMNS=80
+[ $LINES -eq 0 ]   && LINES=24
+[ $COLUMNS -eq 0 ] && COLUMNS=80
 
-test "$TERM" != "raw" && stty size >/dev/null 2>&1 && {
+if [ "$TERM" != "raw" ] && stty size >/dev/null 2>&1; then
   esc=`echo -en "\033"`
   tab=`echo -en "\t"`
   extd="${esc}[1m"
@@ -217,7 +217,7 @@ test "$TERM" != "raw" && stty size >/dev/null 2>&1 && {
   norm=${norm%% }
   norm=${norm## }
   stat="... "
-} || {
+else
   esc=""
   tab=" "        
   extd=""
@@ -225,7 +225,7 @@ test "$TERM" != "raw" && stty size >/dev/null 2>&1 && {
   done=""
   norm=""
   up=""
-}
+fi
 
      rc_done="${done}done${norm}"
    rc_failed="${warn}failed${norm}"
@@ -236,9 +236,9 @@ test "$TERM" != "raw" && stty size >/dev/null 2>&1 && {
 # check for fold
 fold="fold -sw $COLUMNS"
 chk=`which fold 2>/dev/null`
-test $? -ne 0 && fold="cat"
+[ $? -ne 0 ] && fold=cat
 chk=`echo x | $fold 2>/dev/null`
-test -n "$chk" && fold="cat"
+[ -n "$chk" ] && fold=cat
 
 # check for fmt
 fmt=cat
@@ -250,14 +250,14 @@ if [ $COLUMNS -ne 80 ]; then # output is preformatted for 80 cols
     # check for columns
     fmt="fmt -$COLUMNS"
     chk=`echo x | $fmt 2>/dev/null`
-    test -z "$chk" && fmt="fmt"
+    [ -z "$chk" ] && fmt=fmt
     # check for -c|--crown-margin
     chk=`echo x | $fmt -c 2>/dev/null`
     if [ -n "$chk" ]; then
       fmt=$fmt" -c"
     else
       chk=`echo x | $fmt --crown-margin 2>/dev/null`
-      test -n "$chk" && fmt=$fmt" --crown-margin"
+      [ -n "$chk" ] && fmt="$fmt --crown-margin"
     fi
   fi
 fi
@@ -322,8 +322,8 @@ if [ $getopt_exit_code -eq 0 ]; then
       --)                   shift; break;;
     esac
   done
-  test -n "$*" && args=$args" $*"
-  test -z "$args" -a $show_version -eq 0 -a -z "$file" && help=1
+  [ -n "$*" ] && args=$args" $*"
+  [ -z "$args" -a $show_version -eq 0 -a -z "$file" ] && help=1
   set -- $args
 else
 #  echo "getopt exited: $getopt_exit_code
@@ -340,12 +340,12 @@ use_expect=0
 have_exp=0
 have_exp_script=0
 exp_script_exe=0
-test -f "${_exp}" -a -x ${_exp} && have_exp=1
-test -f "${_exp_script}" && have_exp_script=1
-test -x "${_exp_script}" && exp_script_exe=1
-test $have_exp -eq 1 -a $have_exp_script -eq 1 && use_expect=1
+[ -f "${_exp}" -a -x ${_exp} ] && have_exp=1
+[ -f "${_exp_script}" ] && have_exp_script=1
+[ -x "${_exp_script}" ] && exp_script_exe=1
+[ $have_exp -eq 1 -a $have_exp_script -eq 1 ] && use_expect=1
  
-test $verbose -eq 1 -o $help -eq 1 -o $show_version -eq 1 && echo "\
+[ $verbose -eq 1 -o $help -eq 1 -o $show_version -eq 1 ] && echo "\
 ${extd}chkmadd ${ver} -- (C) ${copy}  Thomas Lahn <${mail}>${norm}
 Distributed under the terms of the GNU General Public License (GPL).
 See COPYING file or <http://www.fsf.org/copyleft/gpl.html> for details."
@@ -355,7 +355,7 @@ bugs_info ()
   echo "Report bugs to <${mail_feedback}>.
 "
 } 
-test $verbose -eq 1 -a $show_version -eq 0 && bugs_info
+[ $verbose -eq 1 -a $show_version -eq 0 ] && bugs_info
 
 j=0
 if [ -n "$1" ]; then
@@ -366,7 +366,7 @@ if [ -n "$1" ]; then
     let j=$j+1
   done
 elif [ -n "$file" ]; then
-  test "$file" = "-" && file=/dev/stdin
+  [ "$file" = "-" ] && file=/dev/stdin
   while read i
   do
     i=${i##\<}
@@ -374,12 +374,12 @@ elif [ -n "$file" ]; then
     let j=$j+1
   done < $file
 # TODO: Should we return $E_ERROR and show help screen if no addresses are read?
-# test ${#addresses[@]} -eq 0 && help=1
-  test "$file" = "/dev/stdin" && echo
+# [ ${#addresses[@]} -eq 0 ] && help=1
+  [ "$file" = "/dev/stdin" ] && echo
 fi
 
-test $help -eq 1 -o $show_version -eq 1 && {
-  test $show_version -eq 0 && echo && _help "$appname"
+[ $help -eq 1 -o $show_version -eq 1 ] && {
+  [ $show_version -eq 0 ] && echo && _help "$appname"
  
   echo "\
 
@@ -395,14 +395,14 @@ IFS="
 "
 
 if [ ${#addresses[@]} -gt 0 ]; then
-  test $verbose -eq 1 && echo "E-mail address(es) to check:"
+  [ $verbose -eq 1 ] && echo "E-mail address(es) to check:"
 else  
   echo "No e-mail addresses to check."
   exit_code=$E_ERROR
 fi  
-test $verbose -eq 1 && {
-  echo ${addresses[@]} | $fold
-  test $timeout && {
+[ $verbose -eq 1 ] && {
+  ( echo ${addresses[@]} ) | $fold
+  [ $timeout ] && {
     echo
     echo "Using a $timeout second(s) timeout."
   }  
@@ -453,19 +453,19 @@ is definitely not a (valid) e-mail address." | $fmt
   while true
   do
     if [ $verbose -eq 1 ]; then
-      test "$domain" != "${i##*@}" && echo "None." >&2
       echo "Mail exchanger(s) for $domain:" >&2
+      [ "$domain" != "${i##*@}" ] && echo "none." >&2
     fi  
     mx_query=`host -t MX "${domain}" 2>&1`
     exit_code=$?
-    test ${exit_code} -eq 0 -a -z "`echo "${mx_query}" |
       grep ';;\|\*\*'`" && break
+    [ ${exit_code} -eq 0 -a -z "`echo "${mx_query}" |
 
     # next: test domain of higher level
     domain=`echo "${domain}" | sed -e 's/^[^.]\+\.\(.\+\)/\1/'`
 
     # if we are already at second level
-    test -z "`echo "${domain}" | grep '^.\+\..\+$'`" && break
+    [ -z "`echo "${domain}" | egrep '^.+\..+$'`" ] && break
   done
 
   mxs=`echo "${mx_query}" | grep 'mail\|MX' | grep -v 'not '`
@@ -479,22 +479,22 @@ is definitely not a (valid) e-mail address." | $fmt
       test $verbose -eq 1 -a "$domain" != "${i##*@}" && echo "None." >&2
       mx_query=`host -t A "${domain}" 2>&1`
       exit_code=$?
-      test ${exit_code} -eq 0 -a -z "`echo "${mx_query}" |
-        grep ';;\|\*\*\|not exist'`" && break
+      [ ${exit_code} -eq 0 -a -z "`echo "${mx_query}" |
+        grep -e ';;\|\*\*\|not exist'`" ] && break
 
       # next: test domain of higher level
       domain=`echo "${domain}" | sed -e 's/^[^.]\+\.\(.\+\)/\1/'`
 
       # if we are already at second level
-      test -z "`echo "${domain}" | grep '^.\+\..\+$'`" && break
+      [ -z "`echo "${domain}" | grep -e '^.\{1,\}\..\{1,\}$'`" ] && break
     done
       
     mxs=`echo "${mx_query}" | head -1 | grep -v 'not '`
       
     if [ -z "${mxs}" ]; then
-      if test $verbose -eq 1; then
         echo "None, thus <$i>
 is definitely not an e-mail address (no MX)." | $fmt
+      if [ $verbose -eq 1 ]; then
       else
         echo "<$i>${tab}-${tab}NO_MX"
       fi
@@ -503,7 +503,8 @@ is definitely not an e-mail address (no MX)." | $fmt
     fi  
   fi
 
-  test $verbose -eq 1 && echo "${mxs}" >&2
+  [ $verbose -eq 1 ] && echo "
+${mxs}" >&2
   unset hosts
   for j in ${mxs}
   do
@@ -515,9 +516,9 @@ is definitely not an e-mail address (no MX)." | $fmt
     if [ ${use_expect} -eq 0 ] && [ $j -gt 0 ]; then
       echo
       read -p "Try next host ${hosts[$j]} (y/n)? " -n 1 reply
-      test "${reply}" != "y" && echo && break || echo;
+      [ "${reply}" != 'y' ] && echo && break || echo;
     fi
-    test $verbose -eq 1 && echo
+    [ $verbose -eq 1 ] && echo
     if [ ${use_expect} -eq 1 ]; then
       if [ ${exp_script_exe} -eq 1 ]; then
         if [ $verbose -eq 1 ]; then
