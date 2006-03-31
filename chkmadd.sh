@@ -490,9 +490,9 @@ is definitely not a (valid) e-mail address." | $fmt
     mxs=`echo "${mx_query}" | head -1 | grep -ve 'not\{0,1\} '`
 
     if [ -z "${mxs}" ]; then
-        echo "None, thus <$i>
-is definitely not an e-mail address (no MX)." | $fmt
       if [ $verbose -eq 1 ]; then
+        ( echo "
+None, thus <$i> is definitely not an e-mail address (no MX)." ) | $fmt
       else
         echo "<$i>${tab}-${tab}NO_MX"
       fi
