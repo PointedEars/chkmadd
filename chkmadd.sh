@@ -160,6 +160,8 @@ supported, so if you do not pass an argument to an option, you must
 use \"\" instead." | $fmt
 # _XPG=0
   fi
+  echo "
+See ${extd}chkmadd${norm}(1) for details."
 }
 
 # ********************************** MAIN **************************************
