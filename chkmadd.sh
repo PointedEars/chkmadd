@@ -458,11 +458,11 @@ is definitely not a (valid) e-mail address." | $fmt
     fi  
     mx_query=`host -t MX "${domain}" 2>&1`
     exit_code=$?
-      grep ';;\|\*\*'`" && break
     [ ${exit_code} -eq 0 -a -z "`echo "${mx_query}" |
+      egrep ';;|\*\*'`" ] && break
 
     # next: test domain of higher level
-    domain=`echo "${domain}" | sed -e 's/^[^.]\+\.\(.\+\)/\1/'`
+    domain=`echo "${domain}" | sed -e 's/^[^.]\{1,\}\.\(.\{1,\}\)/\1/'`
 
     # if we are already at second level
     [ -z "`echo "${domain}" | egrep '^.+\..+$'`" ] && break
@@ -483,7 +483,7 @@ is definitely not a (valid) e-mail address." | $fmt
         grep -e ';;\|\*\*\|not exist'`" ] && break
 
       # next: test domain of higher level
-      domain=`echo "${domain}" | sed -e 's/^[^.]\+\.\(.\+\)/\1/'`
+      domain=`echo "${domain}" | sed -e 's/^[^.]\{1,\}\.\(.\{1,\}\)/\1/'`
 
       # if we are already at second level
       [ -z "`echo "${domain}" | grep -e '^.\{1,\}\..\{1,\}$'`" ] && break
