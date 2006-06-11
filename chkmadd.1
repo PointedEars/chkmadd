@@ -1,7 +1,7 @@
 \" chkmadd.1 - the *roff document processor source for the chkmadd manual
 \"
 \" This file is part of PointedEars' chkmadd.
-\" Copyright (C) 2003-2005  Thomas Lahn <chkmadd@PointedEars.de>
+\" Copyright (C) 2003-2006  Thomas Lahn <chkmadd@PointedEars.de>
 \"
 \" Permission is granted to copy, distribute and/or modify this document
 \" under the terms of the GNU Free Documentation License, Version 1.2
@@ -13,15 +13,14 @@
 \" 
 \" [1] <http://www.gnu.org/licenses/licenses.html#FDL>
 \"
-\" You may contact the author by:
+\" You may contact the author by
 \" e-mail: chkmadd@PointedEars.de
 \" snail mail:
 \"   Thomas Lahn
-\"   Warschauer Strasse 1a/0403
-\"   D-99089 Erfurt
-\"   Federal Republic of Germany
+\"   Überlandstrasse 12
+\"   CH-3900 Brig
 
-.TH chkmadd 1 "21 APRIL 2006" "chkmadd 0.1.5.2006033102" "Networking Tools" 
+.TH chkmadd 1 "12 JUNE 2006" "chkmadd 0.1.5.2006061200" "Networking Tools" 
 
 
 .SH NAME
@@ -68,19 +67,19 @@ in uppercase letters are to be interpreted as described in RFC\ 2119):
 It MUST take up to three arguments.  The first two arguments, specifying the
 .SM MX
 and the e-mail address to be verified, MUST be mandatory, i.e. the script
-MUST return an exit code
+MUST exit with a status
 .B "greater than 2"
 if one or both are missing.  The third argument MAY optionally specify
-the default timeout in seconds.  If it does not handle an option (i.e. an
-argument starting with "-"), it MUST ignore it.  It MUST return an exit
-code of
+the default timeout in seconds.  If the script does not handle an option
+(i.e. an argument starting with "-"), it MUST ignore it.  It MUST exit
+with a status of
 .B 0
-if the e-mail address could be verified positive and an exit code of
+if the e-mail address could be verified positive and an exit status of
 .B 1
-if not. It MAY return an exit code of
+if not. It MAY exit with a status of
 .B 2
 to indicate that it is not known whether the passed string
-specifies a mailbox on this server.  It MUST return an exit code
+specifies a mailbox on this server.  It MUST exit with a status
 .B "greater than 2"
 if other errors occur.  It MAY generate arbitrary output in either
 case.  It MUST NOT affect the execution of calling programs directly.
@@ -91,7 +90,10 @@ Builds
 .B 2004022414
 and later of the
 .BR chkmadd.exp (3)
-script contained in the distribution meet these requirements.
+script contained in the distribution meet the argument and exit status
+requirements.  (They do not meet the requirements for options yet; however,
+that is a requirement for further customization of the address checks.
+.BR TODO ", see below.)"
 
 .PP        
 If
@@ -110,11 +112,18 @@ may time out but the delay could interrupt that environment, and you will
 receive no useful feedback anyway.  Use the
 .B -a
 option to prevent that.
+.br
+.RB ( NOTE :
+It should be reconsidered whether the script is reasonable to use then.
+Maybe the whole thing should be written in Expect.  That would also allow
+to remove the dependency on other networking tools; however on the other
+hand, it would require implementing several network protocols in Expect,
+not only basic SMTP.)
 
 .PP
 From version
 .B 0.1.4.2005010914
-on, this script supports a
+on, this script is going to support a
 .B chkmadd
 server to listen for incoming requests if the
 .BR chkmadd.exp (1)
@@ -123,6 +132,7 @@ program can be executed on that server.  See the
 and
 .B -s
 options for details.
+.B (TODO)
 
 .SH OPTIONS
 
@@ -133,15 +143,16 @@ Force automatic verification via the
 .BR expect (1)
 program or the
 .I SCRIPT
-is not available, returns with exit code
+is not available, returns with exit status
 .B 2
 for all addresses.
 .B (TODO)
 
 .IP "\fB-d\fP, \fB--force-dupes\fP"
 Force MXs with different host name but same IP address to be asked for
-\fIEMAIL_ADDRESS\fP.
-.B (TODO)
+\fIEMAIL_ADDRESS\fP.  This is a
+.BR TODO ;
+the current behavior is to ask every MX regardless of the resolved IP address.
 
 .IP "\fB-E\fP, \fB--expect\fP \fIPROGRAM\fP"
 Specify the
@@ -186,7 +197,7 @@ specified with
 .BR -p .
 Corresponds remotely with the locally given
 .B -s
-option.  For security reasons, this works together with
+option.  To prevent misuse, this works together with
 .B -p
 only if the
 .I SERVER
@@ -208,15 +219,22 @@ or where the
 should listen on
 .RB ( -l ).
 The default is telnet(23)/tcp.
+.br
+This option overrides the CHKMADD_PORT environment variable (see below).
+Specify
+.RB ` "-p -" '
+for the default port.
 .B (TODO)
 
 .IP "\fB-s\fP, \fB--server\fP \fISERVER\fP"
 Specify a
 .B chkmadd
-\fISERVER\fP to be used instead of the local program, introduced primarily
+\fISERVER\fP to be used instead of the local program.  Introduced primarily
 to allow clients within blacklisted IP address ranges (such as computers
 of dial-up users having dynamic IP addresses) to use servers that are not
-blacklisted.  The server either must be configured to run the remote
+blacklisted.
+.br
+The server either must be configured to run the remote
 .BR chkmadd (1)
 program with the
 .B -l
@@ -227,15 +245,30 @@ option alone upon receipt of a request on
 .BR tcpd (8)
 and the like) or have it already running and
 .BR --listen ing
-on the port specified with
+on the
+.I PORT
+specified with
 .B -p
 (preferably as a system daemon).
+.br
+This option overrides the CHKMADD_SERVER environment variable (see below).
+Use
+.RB ` "-s -" '
+to be sure that a so predefined
+.I SERVER
+is NOT used.
 .B (TODO)
 
 .IP "\fB-t\fP, \fB--timeout\fP \fISECONDS\fP"
-Specify the timeout for the
+Specify the number of seconds the
 .BR expect (1)
-\fISCRIPT\fP.
+\fISCRIPT\fP should wait for a server reponse to a command before trying the
+next alternative (or abort if there are no more alternatives).  The default
+is
+.BR 10 .
+Use values greater than
+.B 20
+for slow connections/servers.
 
 .IP "\fB-V\fP, \fB--version\fP"
 Display version information and exit with status
@@ -247,7 +280,11 @@ Be verbose.
 .IP "\fB-y\fP, \fB--no-vrfy\fP"
 Skip
 .SM VRFY
-command.
+command.  Some completely b0rken MTAs are already offended by VRFY before
+HELO/MAIL\ FROM, and terminate the connection, or respond with an invalid
+status code then.  That would confuse
+.BR chkmadd.exp (1)
+and return false negatives, which can be prevented by using this option.
 .B (TODO)
 
 .IP "\fIEMAIL_ADDRESS\fP"
@@ -362,7 +399,7 @@ Service Pack 4 \fB[5]\fP.
 \fB[5]\fP <\fIhttp://www.microsoft.com/windows2000/\fP>
 
 .SH "LEGAL NOTICE"
-Copyright (c) 2003-2005  Thomas Lahn <mehl@PointedEars.de>
+Copyright (c) 2003-2006  Thomas Lahn <mehl@PointedEars.de>
 .PP
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
