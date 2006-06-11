@@ -406,8 +406,8 @@ dot_atom=$dot_atom_text
   if [ -z "`echo "$i" | egrep "${dot_atom}@${dot_atom}"`" ]; then
     if [ $verbose -eq 1 ]; then
       ( echo "<$i>
-is definitely not a (valid) e-mail address since
-it lacks compliance with RFC 2822, section 3.4.1." ) | $fmt
+is definitely not a (valid) e-mail address, since it lacks compliance
+with RFC 2822, section 3.4.1 (Addr-spec Specification)." ) | $fmt
     else
       echo "<$i>${tab}-${tab}INVALID_FORMAT"
     fi
