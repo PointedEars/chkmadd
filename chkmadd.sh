@@ -129,6 +129,8 @@ and a ${extd}chkmadd${norm} server to listen for incoming requests are supported
  FILE.  The default
                                 is the standard input which can be equally
                                 specified as \`-'.
+  ${extd}-H${norm}, ${extd}--force-helo${norm}            Force HELO command.\
+  ${extd}(TODO)${norm}
   ${extd}-h${norm}, ${extd}--help${norm}                  Display this help screen and\
  exit.
   ${extd}-l${norm}, ${extd}--listen${norm}                Listen for parameters from\

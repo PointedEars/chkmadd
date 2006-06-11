@@ -166,6 +166,15 @@ Read
 from \fIFILE\fP.  The default is the standard
 input which can be equally specified as `-'.
 
+.IP "\fB-H\fP, \fB--force-helo\fP"
+Force HELO command.  RFC\ 2821 does not require a client to send HELO, and the
+default is not to send it unless MAIL\ FROM fails; in fact, the RFC says that
+`HELO' SHOULD NOT be required for further protocol communication.  However, some
+broken/suspicious configured MTAs (like ESMTP) will terminate the connection
+when receiving MAIL\ FROM or RCPT\ TO without previous HELO (this is usually
+paraphrased as and sometimes even responded with "Polite people say HELO.")  
+.B (TODO)
+
 .IP "\fB-h\fP, \fB--help\fP"
 Display this help screen and exit with status
 .BR 127 .
