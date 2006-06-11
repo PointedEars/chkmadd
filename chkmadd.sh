@@ -370,7 +370,6 @@ The latest version is available from
   exit $E_ERROR
 }
 
-IFS_BAK=${IFS}
 IFS="
 "
 
@@ -584,6 +583,4 @@ could not be verified (reason unknown)." ) | $fmt;;
   fi
 done
 
-IFS=${IFS_BAK}
-IFS_BAK=
 exit ${exit_code}
