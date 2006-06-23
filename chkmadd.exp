@@ -1,6 +1,6 @@
 #! /usr/bin/expect
 
-set version       "0.1.3.2006032405"
+set version       "0.1.3.2006062315"
 set copy          "2004-2006"
 set mail          "mehl@PointedEars.de"
 set mail_feedback "chkmadd.exp@PointedEars.de"
