@@ -11,7 +11,7 @@ set E_NO_ERROR                 0
 set E_ADDRESS_CANNOT_DELIVER   1
 set E_ADDRESS_DONT_KNOW        2
 set E_UNKNOWN_HOST             3
-set E_ERROR                  255
+set E_ERROR                  127
 
 # SMTP reply codes from RFC 2821, section 4.2.3
 set SMTP_STATUS           211
