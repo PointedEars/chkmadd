@@ -1,11 +1,11 @@
 \" chkmadd.1 - the *roff document processor source for the chkmadd manual
 \"
 \" This file is part of PointedEars' chkmadd.
-\" Copyright (C) 2003-2006  Thomas Lahn <chkmadd@PointedEars.de>
+\" Copyright (C) 2003-2007  Thomas Lahn <chkmadd@PointedEars.de>
 \"
 \" Permission is granted to copy, distribute and/or modify this document
 \" under the terms of the GNU Free Documentation License, Version 1.2
-\" or any later version published by the Free Software Foundation;
+\" or any later version puBlished by the Free Software Foundation;
 \" with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
 \" Texts.  A copy of the license is available on the Web[1] or
 \" from the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -229,32 +229,23 @@ for the default port.
 .IP "\fB-s\fP, \fB--server\fP \fISERVER\fP"
 Specify a
 .B chkmadd
-\fISERVER\fP to be used instead of the local program.  Introduced primarily
-to allow clients within blacklisted IP address ranges (such as computers
-of dial-up users having dynamic IP addresses) to use servers that are not
-blacklisted.
-.br
-The server either must be configured to run the remote
-.BR chkmadd (1)
-program with the
-.B -l
-option alone upon receipt of a request on
-.I PORT
-(using
-.BR inetd (8),
-.BR tcpd (8)
-and the like) or have it already running and
-.BR --listen ing
-on the
-.I PORT
-specified with
-.B -p
-(preferably as a system daemon).
+\fISERVER\fP to which the request is being forwarded by the local program.
+Introduced primarily to allow clients within blacklisted IP address ranges
+(such as computers of dial-up users having dynamic IP addresses) to use servers
+that are not blacklisted.  A
+.B chkmadd
+server is a server which can be reached via
+.BR ssh (1)
+and has both
+.B chkmadd
+and (as a security precaution)
+.BR expect (1)
+installed.  
 .br
 This option overrides the CHKMADD_SERVER environment variable (see below).
 Use
 .RB ` "-s -" '
-to be sure that a so predefined
+to make sure that a so predefined
 .I SERVER
 is NOT used.
 .B (TODO)
