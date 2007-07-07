@@ -45,16 +45,13 @@ latest_uri=http://PointedEars.de/tools/network/chkmadd/
 # TO DO (0.1.5b)
 # ===============
 #
-# - Try MXes sorted ascending by priority
-# - Client/server processing:
-#   * Read interactively from stdin on missing arguments (help only on -h)
-#   * Send to host $h, port $p with netcat on -s $h -p $p
-#   * Read from port $p with netcat on -lp $p
-# - Error if expect script cannot be called on -a
-# - Avoid checking duplicate hosts (same IP address) by default;
+# * Read interactively from stdin on missing arguments (help only on -h)
+# * Send to host $h, port $p with netcat on -s $h -p $p
+# * Read from port $p with netcat on -lp $p
+# * Error if expect script cannot be called on -a
+# * Avoid checking duplicate hosts (same IP address) by default;
 #   allow to override with -d option
-# - Tell chkmadd.exp to skip VFRY command on -y (requires chkmadd.exp update)
-# - More: see man page
+# * Tell chkmadd.exp to skip VFRY command on -y (requires chkmadd.exp update)
 #
 # ----------------------------------------------------------------------------
 
