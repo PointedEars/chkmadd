@@ -1,7 +1,7 @@
 #!/bin/bash
 appname=${0##*/}
-ver=0.1.5.2007011011
-copy=2003-2006
+ver=0.1.5.2007070713
+copy=2003-2007
 mail=mehl@PointedEars.de
 mail_feedback=chkmadd@PointedEars.de
 latest_uri=http://PointedEars.de/tools/network/chkmadd/
