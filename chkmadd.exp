@@ -3,8 +3,8 @@
 set version       "0.1.3.2006062315"
 set copy          "2004-2006"
 set mail          "mehl@PointedEars.de"
-set mail_feedback "chkmadd.exp@PointedEars.de"
 set latest_uri    "http://PointedEars.de/tools/network/chkmadd/" 
+set mail_feedback "chkmadd@PointedEars.de"
 
 # Exit codes
 set E_NO_ERROR                 0
