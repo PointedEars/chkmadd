@@ -253,14 +253,16 @@ expect {
         }
         default {}
       }
-  
-## TODO: Sending with the recipient address allows for a validity test before
-## RCPT TO, but may raise suspicion towards the mailbox owner; we don't want
-## that to happen, so it is disabled for now.  May be required to be re-enabled
-## if there is an MTA that does not accept <> or does not say "no" on RCPT TO
-## for not existing mailboxes.  See also MAIL FROM after HELO below.
-# send "MAIL FROM:<$addr>$CRLF"
-    send "MAIL FROM:<>$CRLF"
+    }
+
+## Sending with the recipient address allows for a validity test before
+## RCPT TO, but may raise suspicion towards the mailbox owner; we didn't
+## want that to happen, so had it disabled.  It was re-enabled because
+## there are notable MTAs (e.g. GMX) that do not accept <> or do not say
+## "no" on RCPT TO for not existing mailboxes.  See also MAIL FROM after
+## HELO below.
+    send "MAIL FROM:<$addr>$CRLF"
+#    send "MAIL FROM:<>$CRLF"
     expect {
       -nocase -re "$TELNET_CLOSED$chatty" {
         exit $E_ADDRESS_CANNOT_DELIVER
@@ -305,8 +307,8 @@ expect {
           }
           -re "\n$SMTP_OK$chatty" {
 ## see first MAIL FROM
-# send "MAIL FROM:<$addr>$CRLF"
-            send "MAIL FROM:<>$CRLF"
+            send "MAIL FROM:<$addr>$CRLF"
+#            send "MAIL FROM:<>$CRLF"
             expect {
               -nocase -re "$TELNET_CLOSED$chatty" {
                 exit $E_ADDRESS_CANNOT_DELIVER
