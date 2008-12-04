@@ -1,10 +1,10 @@
 #! /usr/bin/expect
 
-set version       "0.1.3.2006062315"
-set copy          "2004-2006"
+set version       "0.1.3.2008120401"
+set copy          "2004-2008"
 set mail          "mehl@PointedEars.de"
-set latest_uri    "http://PointedEars.de/tools/network/chkmadd/" 
 set mail_feedback "chkmadd@PointedEars.de"
+set latest_uri    "http://PointedEars.de/tools/network/chkmadd/"
 
 # Exit codes
 set E_NO_ERROR                 0
@@ -92,7 +92,7 @@ See COPYING file or <http://www.fsf.org/copyleft/gpl.html> for details."
 
 proc bugs {} {
   global mail_feedback
-  
+
   puts "Report bugs to <$mail_feedback>.
 "
 }
@@ -163,8 +163,8 @@ Exit Codes
   [leadingCh $E_ADDRESS_DONT_KNOW 3]\tUnable to verify address
   [leadingCh $E_UNKNOWN_HOST 3]\tUnknown host
   [leadingCh $E_ERROR 3]\tGeneral error"
-  }  
-  
+  }
+
   puts "
 Requires the Expect scripting language,
 a Tcl (Tool command language) extension:
@@ -188,11 +188,11 @@ bugs
 
 proc logout {exit_code} {
   global CRLF
-  global SMTP_OK        
-  global SMTP_CLOSE        
+  global SMTP_OK
+  global SMTP_CLOSE
   global chatty
   global TELNET_CLOSED
-  
+
   expect {
     -nocase -re "$TELNET_CLOSED$chatty" {
       exit $exit_code
@@ -202,11 +202,11 @@ proc logout {exit_code} {
       expect {
         "\n$SMTP_OK " {}
         default {}
-      }    
+      }
       send "QUIT$CRLF"
       expect "\n$SMTP_CLOSE "
-    }  
-  }  
+    }
+  }
   exit $exit_code
 }
 
@@ -286,7 +286,7 @@ expect {
  ##       unknown whether all MTAs follow the RFC in this regard as
  ##       some accept *also* without "<...>" -- some may not accept
  ##       "<...>" at all.
- #  
+ #
  # Bad address syntax
  #        set addr "<$addr>"
  #        exp_continue
@@ -336,11 +336,11 @@ expect {
               -re "\n($SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_PARAM_NA|$SMTP_MAILBOX_NA)$chatty" {
                 logout $E_ADDRESS_CANNOT_DELIVER
               }
-             default {
+              default {
                 # Invalid status code
                 logout $E_ADDRESS_CANNOT_DELIVER
-              } 
-            }  
+              }
+            }
           }
           -re "\n($SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_PARAM_NA|$SMTP_MAILBOX_NA)$chatty" {
             logout $E_ADDRESS_CANNOT_DELIVER
@@ -351,13 +351,13 @@ expect {
           default {
             # Invalid status code
             logout $E_ADDRESS_CANNOT_DELIVER
-          } 
-        }        
+          }
+        }
       }
       default {
         logout $E_ADDRESS_CANNOT_DELIVER
       }
-    }  
+    }
 
     send "RCPT TO:<$addr>$CRLF"
     expect {
@@ -386,13 +386,13 @@ expect {
 #              }
 #              default {
 #                logout $E_ADDRESS_CANNOT_DELIVER
-#              }  
-#            }        
+#              }
+#            }
 #          }
 #          default {
 #            logout $E_ADDRESS_CANNOT_DELIVER
-#          }          
-#        }        
+#          }
+#        }
       }
       -re "\n($SMTP_NA_CLOSE|$SMTP_FORWARD|$SMTP_USR_NOT_LOCAL|$SMTP_SRV_OUT_OF_SPACE|$SMTP_LOCAL_ERROR|$SMTP_INVALID_BOX_NAME|$SMTP_TRANSACTION_FAIL)$chatty" {
         # SMTP_INVALID_BOX_NAME for anti-spam, see HELO
@@ -405,7 +405,7 @@ expect {
         # Invalid status code
         logout $E_ADDRESS_CANNOT_DELIVER
       }
-    }      
+    }
   }
   -re "\n$SMTP_NA_CLOSE$chatty" {
     logout $E_ADDRESS_DONT_KNOW
