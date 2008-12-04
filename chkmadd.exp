@@ -91,16 +91,59 @@ proc bugs {} {
 "
 }
 
-if {$argc < 2 || [lindex $argv 0] == "-V"} {
-  if {[lindex $argv 0] != "-V"} {
+# Allow MTAs to be chatty, i.e. wait for the complete status message
+# (incl. multi-line), not only the status code.  Useful if output should
+# be displayed or logged.  The --fast option will set chatty "",
+# --no-multi will set chatty " .*"; (TODO: --chatty will set chatty to its
+# argument.)
+set chatty ".*"
+
+set show_version 0
+set skip_verify  0
+
+# list of positional arguments
+set pargs {}
+
+# parameter parsing -- no `foreach' because we need the index later
+for {set i 0; set len [llength $argv]} {$i < $len} {incr i} {
+  set arg [lindex $argv $i]
+  switch -- $arg {
+    --             {break}
+    --fast         {set chatty ""}
+    --no-multi     {set chatty " .*"} 
+    --skip-verify  {set skip_verify  1} 
+    -V             {set show_version 1}
+    default        {lappend pargs $arg}    
+  }
+}
+
+lappend pargs [lrange $argv $i end]
+
+## DEBUG
+#puts $pargs
+#exit
+
+set host [lindex $pargs 0]
+set addr [lindex $pargs 1]
+
+# expect default is 10
+if {[llength $pargs] > 2} {
+  set timeout [lindex $pargs 2]
+}
+
+if {[llength $pargs] < 2 || $show_version} {
+  if {! $show_version} {
     puts "
-Usage: [file tail $argv0] \[ -V | REMOTE_HOST EMAIL_ADDRESS \[TIMEOUT\] \]...
+Usage: [file tail $argv0] \[options\] REMOTE_HOST EMAIL_ADDRESS \[TIMEOUT\] ...
 
 Verifies EMAIL_ADDRESS by talking SMTP to REMOTE_HOST via Telnet.
 This script is usually invoked by the \"chkmadd\" program which
 determines the respective mail exchanger (MX) for e-mail addresses.
 If available, enter \"chkmadd\" for details.
 
+  --fast          Wait for the response status code only.
+  --no-multi      Wait for the first response status line only.
+  --skip-verify   Skip sending VRFY command and evaluating the response.
   -V              Display version information and exit.
   REMOTE_HOST     Host name or Internet address of the mail exchanger.
   EMAIL_ADDRESS   E-mail address to be checked.
@@ -128,10 +171,11 @@ The latest version is available from
 <$latest_uri>."
   bugs
 
-  if {[lindex $argv 0] == "-V"} {
+  if $show_version {
     exit $E_NO_ERROR
-  }          
-  exit $E_ERROR
+  } else {
+    exit $E_ERROR
+  }
 }
 
 bugs
@@ -160,23 +204,8 @@ proc logout {exit_code} {
   exit $exit_code
 }
 
-# default is 10
-if {$argc >= 3} {
-  set timeout [lindex $argv 2]
-}
-
 # telnet hangs if not set
 set env(TERM) vt100
-
-set host [lindex $argv 0]
-set addr [lindex $argv 1]
-
-# Allow MTAs to be chatty, i.e. wait for the complete status message
-# (incl. multi-line), not only the status code.  Useful if output should
-# be displayed or logged.  (TODO: A future --fast option will set chatty "",
-# --no-multi will set chatty " .*"; maybe --chatty will set chatty to its
-# argument.  POSIX-conform command-line parsing required before that.)
-set chatty ".*"
 
 set TELNET_CLOSED "not found|unable|no route|connection closed|timed out"
 
@@ -203,26 +232,27 @@ expect {
     exit $E_ADDRESS_CANNOT_DELIVER
   }
   -re "\n$SMTP_READY$chatty" {
-    send "VRFY $addr$CRLF"
-    expect {
-      -nocase -re "$TELNET_CLOSED$chatty" {
-        exit $E_ADDRESS_DONT_KNOW
+    if {! $skip_verify} {
+      send "VRFY $addr$CRLF"
+      expect {
+        -nocase -re "$TELNET_CLOSED$chatty" {
+          exit $E_ADDRESS_DONT_KNOW
+        }
+        -re "\n$SMTP_OK$chatty" {
+          # address is valid, exit successfully
+          logout $E_NO_ERROR
+        }
+        -re "\n($SMTP_FORWARD|$SMTP_USR_NOT_LOCAL|$SMTP_NA_CLOSE)$chatty" {
+          logout $E_ADDRESS_DONT_KNOW
+        }
+        -re "\n$SMTP_INVALID_BOX_NAME$chatty" {
+          logout $E_ADDRESS_CANNOT_DELIVER
+        }
+        -re "\n($SMTP_MAILBOX_NA|$SMTP_NO_VERIFY|$SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_UNKNOWN_COMMAND|$SMTP_PARAM_NA|$SMTP_LOCAL_ERROR|$SMTP_BAD_SEQUENCE)$chatty" {
+          # cannot VRFY, continue; SMTP_BAD_SEQUENCE only for graceful degradation
+        }
+        default {}
       }
-      -re "\n$SMTP_OK$chatty" {
-        # address is valid, exit successfully
-        logout $E_NO_ERROR
-      }
-      -re "\n($SMTP_FORWARD|$SMTP_USR_NOT_LOCAL|$SMTP_NA_CLOSE)$chatty" {
-        logout $E_ADDRESS_DONT_KNOW
-      }
-      -re "\n$SMTP_INVALID_BOX_NAME$chatty" {
-        logout $E_ADDRESS_CANNOT_DELIVER
-      }
-      -re "\n($SMTP_MAILBOX_NA|$SMTP_NO_VERIFY|$SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_UNKNOWN_COMMAND|$SMTP_PARAM_NA|$SMTP_LOCAL_ERROR|$SMTP_BAD_SEQUENCE)$chatty" {
-        # cannot VRFY, continue; SMTP_BAD_SEQUENCE only for graceful degradation
-      }
-      default {}
-    }    
   
 ## TODO: Sending with the recipient address allows for a validity test before
 ## RCPT TO, but may raise suspicion towards the mailbox owner; we don't want
