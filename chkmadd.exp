@@ -212,6 +212,11 @@ set TELNET_CLOSED "not found|unable|no route|connection closed|timed out"
 spawn telnet -- "$host" smtp
 trap {logout $E_ERROR} {SIGINT SIGTERM}
 
+set thishost [exec hostname 2>/dev/null]
+if {$thishost == ""} {
+  set thishost "127.0.0.1"
+}
+
 expect {
   -nocase -re "$TELNET_CLOSED$chatty" {
     exit $E_ADDRESS_CANNOT_DELIVER
@@ -299,8 +304,7 @@ expect {
         #       hence the alternation.
         # TODO: SMTP_MAILBOX_NA only here (and not with
         #       E_ADDRESS_CANNOT_DELIVER above) when MAIL FROM:<> was used.
-        # TODO: Send unsuspicious HELO so we are not blacklisted and not blocked
-        send "HELO 127.0.0.1$CRLF"
+        send "HELO $thishost$CRLF"
         expect {
           -nocase -re "$TELNET_CLOSED$chatty" {
             exit $E_ADDRESS_CANNOT_DELIVER
