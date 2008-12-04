@@ -361,8 +361,8 @@ expect {
       -re "\n($SMTP_OK|$SMTP_OUT_OF_SPACE|$SMTP_TEMP_NA)$chatty" {
         # Recipient EXISTS
 
-## TODO: Currently we do not send "DATA" to prevent unsolicited e-mails
-##        
+## NOTE: Currently we do not send "DATA" to prevent unsolicited e-mails
+##
 #        send "DATA$CRLF"
 #        expect {
 #          "\n$SMTP_DATA_INPUT " {
