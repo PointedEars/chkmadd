@@ -72,6 +72,12 @@ set SMTP_TRANSACTION_FAIL 554
 # somehow "\r\n" does not work
 set CRLF "\r"
 
+# Appends in front of a string until it is long enough.
+# 
+# @param s   String
+# @param len The minimum length of the resulting string.  
+# @param ch  The character 
+# @returns The modified string.
 proc leadingCh {s {len 1} {ch " "}} {
   while {[string length "$s"] < $len} {
     set s "$ch$s"
