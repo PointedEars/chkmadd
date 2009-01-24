@@ -405,8 +405,8 @@ atext='[A-Za-z0-9!#-'\''*+/=?^_\`{|}~-]'
 dot_atom_text="$atext+(\\.$atext+)*"
 dot_atom=$dot_atom_text
   
-  if [ -z "`echo "$i" | egrep "${dot_atom}@${dot_atom}"`" ]; then
-    if [ $verbose -eq 1 ]; then
+  if [ -z "`echo "$i" | egrep -e "${dot_atom}@${dot_atom}"`" ]; then
+    if [ -n "$verbose" ]; then
       ( echo "<$i>
 is definitely not a (valid) e-mail address, since it lacks compliance
 with RFC 2822, section 3.4.1 (Addr-spec Specification)." ) | $fmt
@@ -417,8 +417,8 @@ with RFC 2822, section 3.4.1 (Addr-spec Specification)." ) | $fmt
     continue
   fi
   
-#  if [ -z "`echo "$i" | grep @`" ]; then
 #    if [ $verbose -eq 1 ]; then
+#  if [ -z "`echo "$i" | grep -e @`" ]; then
 #      ( echo "The @ character is missing, thus <$i>
 #is definitely not a (valid) e-mail address." ) | $fmt
 #    else
@@ -475,7 +475,7 @@ is definitely not a (valid) e-mail address." ) | $fmt
     domain=`echo "${domain}" | sed -e 's/^[^.]\{1,\}\.\(.\{1,\}\)/\1/'`
 
     # if we are already at second level
-    [ -z "`echo "${domain}" | egrep '^.+\..+$'`" ] && break
+    [ -z "`echo "${domain}" | egrep -e '^.+\..+$'`" ] && break
   done
 
   mxs=`echo "${mx_query}" | egrep -e 'mail|MX' | egrep -ve '(^|[^.])no[nt]? '`
