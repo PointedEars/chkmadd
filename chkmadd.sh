@@ -262,7 +262,7 @@ fi
 
 getopt_exit_code=$?
 help=0
-verbose=0
+unset verbose
 show_version=0
 force_auto=0
 force_dupes=0
@@ -288,7 +288,7 @@ if [ $getopt_exit_code -eq 0 ]; then
   do
     case "$1" in
       -h | --help)          help=1; shift;;
-      -v | --verbose)       verbose=1; shift;;
+      -v | --verbose)       verbose='-v'; shift;;
       -V | --version)       show_version=1; shift;;
       -E | --expect)        shift; _exp="$1"; shift;;
       -e | --expect-script) shift; _exp_script="$1"; shift;;
@@ -324,8 +324,8 @@ exp_script_exe=0
 [ -f "${_exp_script}" ] && have_exp_script=1
 [ -x "${_exp_script}" ] && exp_script_exe=1
 [ $have_exp -eq 1 -a $have_exp_script -eq 1 ] && use_expect=1
- 
-[ $verbose -eq 1 -o $help -eq 1 -o $show_version -eq 1 ] && echo "\
+
+[ -n "$verbose" -o $help -eq 1 -o $show_version -eq 1 ] && echo "\
 ${extd}chkmadd ${ver} -- (C) ${copy}  Thomas Lahn <${mail}>${norm}
 Distributed under the terms of the GNU General Public License (GPL).
 See COPYING file or <http://www.fsf.org/copyleft/gpl.html> for details."
@@ -334,8 +334,8 @@ bugs_info ()
 {
   echo "Report bugs to <${mail_feedback}>.
 "
-} 
-[ $verbose -eq 1 -a $show_version -eq 0 ] && bugs_info
+}
+[ -n "$verbose" -a $show_version -eq 0 ] && bugs_info
 
 j=0
 if [ -n "$1" ]; then
@@ -374,12 +374,11 @@ IFS="
 "
 
 if [ ${#addresses[@]} -gt 0 ]; then
-  [ $verbose -eq 1 ] && echo "E-mail address(es) to check:"
-else  
+  [ -n "$verbose" ] && echo "E-mail address(es) to check:"
+else
   echo "No e-mail addresses to check."
   exit_code=$E_ERROR
-fi  
-[ $verbose -eq 1 ] && {
+fi
 
 [ -n "$server" ] &&
 {
@@ -387,6 +386,7 @@ fi
   exit $?
 }
 
+[ -n "$verbose" ] && {
   ( echo ${addresses[@]} ) | $fold
   [ $timeout ] && {
     echo
@@ -396,7 +396,7 @@ fi
 
 for i in ${addresses[@]}
 do
-  if [ $verbose -eq 1 ]; then
+  if [ -n "$verbose" ]; then
     echo
     echo "Verifying <$i>..." >&2
   fi
@@ -417,8 +417,8 @@ with RFC 2822, section 3.4.1 (Addr-spec Specification)." ) | $fmt
     continue
   fi
   
-#    if [ $verbose -eq 1 ]; then
 #  if [ -z "`echo "$i" | grep -e @`" ]; then
+#    if [ -n "$verbose" ]; then
 #      ( echo "The @ character is missing, thus <$i>
 #is definitely not a (valid) e-mail address." ) | $fmt
 #    else
@@ -429,7 +429,7 @@ with RFC 2822, section 3.4.1 (Addr-spec Specification)." ) | $fmt
 #  fi
   
 #  if [ -z "${i%%@*}" ]; then
-#    if [ $verbose -eq 1 ]; then
+#    if [ -n "$verbose" ]; then
 #      ( echo "The local-part is missing, thus <$i>
 #is definitely not a (valid) e-mail address." ) | $fmt
 #    else
@@ -442,7 +442,7 @@ with RFC 2822, section 3.4.1 (Addr-spec Specification)." ) | $fmt
   # pass domain part of e-mail address to `host'
   domain=${i##*@}
   if [ -z "$domain" ]; then
-    if [ $verbose -eq 1 ]; then
+    if [ -n "$verbose" ]; then
       ( echo "The domain-part is missing, thus <$i>
 is definitely not a (valid) e-mail address." ) | $fmt
     else
@@ -454,7 +454,7 @@ is definitely not a (valid) e-mail address." ) | $fmt
 
   while true
   do
-    if [ $verbose -eq 1 ]; then
+    if [ -n "$verbose" ]; then
       [ "$domain" != "${i##*@}" ] && echo "none." >&2
       echo -n "Mail exchanger(s) for $domain: " >&2
     fi  
@@ -484,7 +484,7 @@ is definitely not a (valid) e-mail address." ) | $fmt
     domain=${i##*@}
     while true
     do
-      if [ $verbose -eq 1 ]; then
+      if [ -n "$verbose" ]; then
         if [ "$domain" != "${i##*@}" ]; then
           echo "none." >&2
         else
@@ -516,9 +516,9 @@ is definitely not a (valid) e-mail address." ) | $fmt
       
     mxs=`echo "${mx_query}" | head -1 | egrep -ve 'not? '`
     if [ -z "${mxs}" ]; then
-      if [ $verbose -eq 1 ]; then
         ( echo "
 None, thus <$i> is definitely not an e-mail address (no MX)." ) | $fmt
+      if [ -n "$verbose" ]; then
       else
         echo "<$i>${tab}-${tab}NO_MX"
       fi
@@ -527,7 +527,7 @@ None, thus <$i> is definitely not an e-mail address (no MX)." ) | $fmt
     fi
   fi
 
-  [ $verbose -eq 1 ] && echo "
+  [ -n "$verbose" ] && echo "
 ${mxs}" >&2
   unset hosts
   for j in ${mxs}
@@ -542,10 +542,10 @@ ${mxs}" >&2
       read -p "Try next host ${hosts[$j]} (y/n)? " -n 1 reply
       [ "${reply}" != 'y' ] && echo && break || echo;
     fi
-    [ $verbose -eq 1 ] && echo
+    [ -n "$verbose" ] && echo
     if [ ${use_expect} -eq 1 ]; then
       if [ ${exp_script_exe} -eq 1 ]; then
-        if [ $verbose -eq 1 ]; then
+        if [ -n "$verbose" ]; then
           ${_exp_script} ${skip_verify} "${hosts[$j]}" "$i" $timeout
         else
           ${_exp_script} ${skip_verify} "${hosts[$j]}" "$i" $timeout >/dev/null
@@ -560,7 +560,7 @@ ${mxs}" >&2
 
       exit_code=$?
       if [ $exit_code -eq 0 ]; then
-        if [ $verbose -eq 1 ]; then
+        if [ -n "$verbose" ]; then
           ( echo "
 <$i>
 is most certainly an e-mail address." ) | $fmt
@@ -574,7 +574,7 @@ is most certainly an e-mail address." ) | $fmt
     fi  
   done
   if [ $use_expect -eq 1 ] && [ $exit_code -ne 0 ]; then
-    if [ $verbose -eq 1 ]; then
+    if [ -n "$verbose" ]; then
       case $exit_code in
         1)
         ( echo "
