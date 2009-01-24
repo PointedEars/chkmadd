@@ -460,8 +460,16 @@ is definitely not a (valid) e-mail address." ) | $fmt
     fi  
     mx_query=`host -t MX "${domain}" 2>&1`
     exit_code=$?
-    [ ${exit_code} -eq 0 -a -z "`echo "${mx_query}" |
-      egrep ';;|\*\*'`" ] && break
+    if [ ${exit_code} -eq 0 ]; then
+      [ -z "`echo "${mx_query}" | egrep -e ';;|\*\*'`" ] && break
+    elif [ ${exit_code} -eq 127 ]; then
+      mx_query=`nslookup -querytype=MX "${domain}" 2>&1`
+
+      exit_code=$?
+      if [ ${exit_code} -eq 0 ]; then
+        [ -z "`echo "${mx_query}" | egrep -e '\*\*\*.+non-existent'`" ] && break
+      fi
+    fi
 
     # next: test domain of higher level
     domain=`echo "${domain}" | sed -e 's/^[^.]\{1,\}\.\(.\{1,\}\)/\1/'`
@@ -470,7 +478,7 @@ is definitely not a (valid) e-mail address." ) | $fmt
     [ -z "`echo "${domain}" | egrep '^.+\..+$'`" ] && break
   done
 
-  mxs=`echo "${mx_query}" | egrep 'mail|MX' | egrep -v '(^|[^.])not? '`
+  mxs=`echo "${mx_query}" | egrep -e 'mail|MX' | egrep -ve '(^|[^.])no[nt]? '`
 
   if [ -z "${mxs}" ]; then
     domain=${i##*@}
@@ -487,8 +495,16 @@ is definitely not a (valid) e-mail address." ) | $fmt
       fi
       mx_query=`host -t A "${domain}" 2>&1`
       exit_code=$?
-      [ ${exit_code} -eq 0 -a -z "`echo "${mx_query}" |
-        grep -e ';;\|\*\*\|not exist'`" ] && break
+      if [ ${exit_code} -eq 0 ]; then
+        [ -z "`echo "${mx_query}" | grep -e ';;\|\*\*\|not exist'`" ] && break
+      elif [ ${exit_code} -eq 0 ]; then
+        mx_query=`nslookup -querytype=A "${domain}" 2>&1`
+
+        exit_code=$?
+        if [ ${exit_code} -eq 0 ]; then
+          [ -z "`echo "${mx_query}" | egrep -e '\*\*\*.+non-existent'`" ] && break
+        fi
+      fi
 
       # next: test domain of higher level
       domain=`echo "${domain}" | sed -e 's/^[^.]\{1,\}\.\(.\{1,\}\)/\1/'`
