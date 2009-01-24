@@ -380,6 +380,13 @@ else
   exit_code=$E_ERROR
 fi  
 [ $verbose -eq 1 ] && {
+
+[ -n "$server" ] &&
+{
+  ssh "$server" "${port:+-p $port}" chkmadd $verbose -- $*
+  exit $?
+}
+
   ( echo ${addresses[@]} ) | $fold
   [ $timeout ] && {
     echo
@@ -389,12 +396,6 @@ fi
 
 for i in ${addresses[@]}
 do
-  [ -n "$server" ] &&
-  {
-    echo "$i" | nc -q 10 "$server" "$port"
-    continue
-  }
-
   if [ $verbose -eq 1 ]; then
     echo
     echo "Verifying <$i>..." >&2
