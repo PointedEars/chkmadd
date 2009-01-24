@@ -513,8 +513,8 @@ is definitely not a (valid) e-mail address." ) | $fmt
       [ -z "`echo "${domain}" | grep -e '^.\{1,\}\..\{1,\}$'`" ] && break
     done
       
-    mxs=`echo "${mx_query}" | head -1 | grep -ve 'not\{0,1\} '`
       
+    mxs=`echo "${mx_query}" | head -1 | egrep -ve 'not? '`
     if [ -z "${mxs}" ]; then
       if [ $verbose -eq 1 ]; then
         ( echo "
