@@ -1,13 +1,13 @@
 #!/bin/bash
 appname=${0##*/}
-ver=0.1.5.2007070713
-copy=2003-2007
+ver=0.1.5.2009012417
+copy=2003-2009
 mail=mehl@PointedEars.de
 mail_feedback=chkmadd@PointedEars.de
 latest_uri=http://PointedEars.de/tools/network/chkmadd/
 # ----------------------------------------------------------------------------
 #     chkmadd 0.1.5 -- E-Mail Address Checker
-#     Copyright (C) 2003-2006  Thomas Lahn <mehl@PointedEars.de>
+#     Copyright (C) 2003-2009  Thomas Lahn <mehl@PointedEars.de>
 #
 #     This program is free software; you can redistribute it and/or modify
 #     it under the terms of the GNU General Public License as published by
