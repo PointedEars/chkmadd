@@ -401,7 +401,7 @@ do
     echo "Verifying <$i>..." >&2
   fi
 
-atext='[A-Za-z0-9!#-'\''*+/=?^_\`{|}~-]'
+atext="[A-Za-z0-9!#-\\'*+/=?^_\\\`{|}~-]"
 dot_atom_text="$atext+(\\.$atext+)*"
 dot_atom=$dot_atom_text
   
@@ -516,9 +516,9 @@ is definitely not a (valid) e-mail address." ) | $fmt
       
     mxs=`echo "${mx_query}" | head -1 | egrep -ve 'not? '`
     if [ -z "${mxs}" ]; then
-        ( echo "
-None, thus <$i> is definitely not an e-mail address (no MX)." ) | $fmt
       if [ -n "$verbose" ]; then
+        echo "
+None, thus <$i> is definitely not an e-mail address (no MX)." | $fmt
       else
         echo "<$i>${tab}-${tab}NO_MX"
       fi
