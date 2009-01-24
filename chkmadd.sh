@@ -151,8 +151,7 @@ and a ${extd}chkmadd${norm} server to listen for incoming requests are supported
   ${extd}-V${norm}, ${extd}--version${norm}               Display version information\
  and exit.
   ${extd}-v${norm}, ${extd}--verbose${norm}               Be verbose.
-  ${extd}-y${norm}, ${extd}--no-vrfy${norm}               Skip VRFY command.\
-  ${extd}(TODO)${norm} 
+  ${extd}-y${norm}, ${extd}--no-vrfy${norm}               Skip VRFY command.
   EMAIL_ADDRESS               E-mail address to be verified. May be delimited
                               by \"<\" and \">\".  Separate e-mail addresses by
                               space (\$IFS in general)."  
@@ -250,15 +249,15 @@ fi
 if `getopt -T >/dev/null 2>&1`; [ $? = 4 ]; then
   getopt_type=long
 #  echo "getopt(1) type:     enhanced" >&2
-  tmp=`getopt -o vhVadE:e:f::p:s:t: \
+  tmp=`getopt -o vhVadE:e:f::p:s:t:y \
               -l verbose,help,version,auto,force-dupes,expect:,expect-script:\
-,file::,port:,server:,timeout: \
+,file::,port:,server:,timeout:,skip-verify \
               -n "$appname" \
               -- "$@"`
 else
   getopt_type=short
 #  echo "getopt(1) type:     old" >&2
-  tmp=`getopt vhVadE:e:f:p:s:t: "$@"`
+  tmp=`getopt vhVadE:e:f:p:s:t:y "$@"`
 fi
 
 getopt_exit_code=$?
@@ -299,6 +298,7 @@ if [ $getopt_exit_code -eq 0 ]; then
       -p | --port)          shift; port=$1; shift;;
       -s | --server)        shift; server=$1; shift;;
       -t | --timeout)       shift; timeout=$1; shift;;
+      -y | --skip-verify)   skip_verify='--skip-verify'; shift;;
       --)                   shift; break;;
     esac
   done
@@ -529,17 +529,18 @@ ${mxs}" >&2
     if [ ${use_expect} -eq 1 ]; then
       if [ ${exp_script_exe} -eq 1 ]; then
         if [ $verbose -eq 1 ]; then
-          ${_exp_script} "${hosts[$j]}" "$i" $timeout
+          ${_exp_script} ${skip_verify} "${hosts[$j]}" "$i" $timeout
         else
-          ${_exp_script} "${hosts[$j]}" "$i" $timeout >/dev/null
-        fi  
-      else  
-        if [ $verbose -eq 1 ]; then
-          ${_exp} ${_exp_script} "${hosts[$j]}" "$i" $timeout
+          ${_exp_script} ${skip_verify} "${hosts[$j]}" "$i" $timeout >/dev/null
+        fi
+      else
+        if [ -n "$verbose" ]; then
+          ${_exp} ${_exp_script} ${skip_verify} "${hosts[$j]}" "$i" $timeout
         else
-          ${_exp} ${_exp_script} "${hosts[$j]}" "$i" $timeout >/dev/null
-        fi  
-      fi  
+          ${_exp} ${_exp_script} ${skip_verify} "${hosts[$j]}" "$i" $timeout >/dev/null
+        fi
+      fi
+
       exit_code=$?
       if [ $exit_code -eq 0 ]; then
         if [ $verbose -eq 1 ]; then
