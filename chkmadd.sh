@@ -1,6 +1,6 @@
 #!/bin/bash
 appname=${0##*/}
-ver=0.1.5.2009012417
+ver=0.1.5.2009020211
 copy=2003-2009
 mail=mehl@PointedEars.de
 mail_feedback=chkmadd@PointedEars.de
@@ -272,6 +272,7 @@ server=$CHKMADD_SERVER
 _exp='/usr/bin/expect'
 _exp_script="`dirname "$0"`/chkmadd.exp"
 args=""
+
 if [ $getopt_exit_code -eq 0 ]; then
 ##     getopt  returns  error  code 0 for successful parsing, 1 if
 ##     getopt(3) returns errors, 2 if it does not understand its
@@ -424,6 +425,7 @@ with RFC 2822, section 3.4.1 (Addr-spec Specification)." ) | $fmt
     else
       echo "<$i>${tab}-${tab}INVALID_FORMAT"
     fi
+    
     exit_code=$E_ADDRESS_DOESNT_EXIST
     continue
   fi
@@ -459,6 +461,7 @@ is definitely not a (valid) e-mail address." ) | $fmt
     else
       echo "<$i>${tab}-${tab}NO_DOMAIN_PART"
     fi
+    
     exit_code=$E_ADDRESS_DOESNT_EXIST
     continue
   fi
@@ -469,7 +472,9 @@ is definitely not a (valid) e-mail address." ) | $fmt
       [ "$domain" != "${i##*@}" ] && echo "none." >&2
       echo -n "Mail exchanger(s) for $domain: " >&2
     fi  
+    
     mx_query=`host -t MX "${domain}" 2>&1`
+    
     exit_code=$?
     if [ ${exit_code} -eq 0 ]; then
       [ -z "`echo "${mx_query}" | egrep -e ';;|\*\*'`" ] && break
@@ -504,6 +509,7 @@ is definitely not a (valid) e-mail address." ) | $fmt
 
         fi
       fi
+      
       mx_query=`host -t A "${domain}" 2>&1`
       exit_code=$?
       if [ ${exit_code} -eq 0 ]; then
@@ -524,8 +530,8 @@ is definitely not a (valid) e-mail address." ) | $fmt
       [ -z "`echo "${domain}" | grep -e '^.\{1,\}\..\{1,\}$'`" ] && break
     done
       
-      
     mxs=`echo "${mx_query}" | head -1 | egrep -ve 'not? '`
+      
     if [ -z "${mxs}" ]; then
       if [ -n "$verbose" ]; then
         echo "
@@ -533,6 +539,7 @@ None, thus <$i> is definitely not an e-mail address (no MX)." | $fmt
       else
         echo "<$i>${tab}-${tab}NO_MX"
       fi
+      
       exit_code=$E_ADDRESS_DOESNT_EXIST
       continue
     fi
@@ -546,6 +553,7 @@ ${mxs}" >&2
     hosts[${#hosts[@]}]=`echo $j |
       sed -e 's/.*[ '$'\t'']\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\|.*[^.]\)\.\?$/\1/'`
   done
+  
   for j in `seq 0 $((${#hosts[@]}-1))`
   do
     if [ ${use_expect} -eq 0 ] && [ $j -gt 0 ]; then
@@ -553,6 +561,7 @@ ${mxs}" >&2
       read -p "Try next host ${hosts[$j]} (y/n)? " -n 1 reply
       [ "${reply}" != 'y' ] && echo && break || echo;
     fi
+  
     [ -n "$verbose" ] && echo
     if [ ${use_expect} -eq 1 ]; then
       if [ ${exp_script_exe} -eq 1 ]; then
@@ -569,6 +578,7 @@ ${mxs}" >&2
         fi
       fi
 
+  
       exit_code=$?
       if [ $exit_code -eq 0 ]; then
         if [ -n "$verbose" ]; then
@@ -578,12 +588,14 @@ is most certainly an e-mail address." ) | $fmt
         else
           echo "<$i>${tab}+${tab}OK"
         fi
+        
         break
       fi
     else
       telnet -- "${hosts[$j]}" smtp
     fi  
   done
+  
   if [ $use_expect -eq 1 ] && [ $exit_code -ne 0 ]; then
     if [ -n "$verbose" ]; then
       case $exit_code in
