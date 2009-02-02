@@ -373,18 +373,29 @@ The latest version is available from
 IFS="
 "
 
+[ -n "$server" -a "$server" != '-' ] &&
+{
+  [ -n "$verbose" ] &&
+  {
+    echo "Using chkmadd server $server${port:+:$port}"
+    echo
+  }
+
+  [ "$port" = "-" ] && unset port
+
+  # TODO: Pass all options
+  ssh "$server" "${port:+-p $port}" \
+    chkmadd $verbose ${timeout:+-t $timeout} -- $*
+
+  exit $?
+}
+
 if [ ${#addresses[@]} -gt 0 ]; then
   [ -n "$verbose" ] && echo "E-mail address(es) to check:"
 else
   echo "No e-mail addresses to check."
   exit_code=$E_ERROR
 fi
-
-[ -n "$server" ] &&
-{
-  ssh "$server" "${port:+-p $port}" chkmadd $verbose -- $*
-  exit $?
-}
 
 [ -n "$verbose" ] && {
   ( echo ${addresses[@]} ) | $fold

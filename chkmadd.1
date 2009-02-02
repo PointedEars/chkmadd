@@ -123,16 +123,23 @@ not only basic SMTP.)
 
 .PP
 From version
-.B 0.1.4.2005010914
-on, this script is going to support a
+.B 0.1.5.2009020211
+on, this script supports a
 .B chkmadd
-server to listen for incoming requests if the
-.BR chkmadd.exp (1)
+server to connect to MTAs in place of the local host.  See the
+.B -s
+and
+.B -p
+options for details.
+
+.PP
+In the next version, this script might support a
+.B chkmadd
+server to listen for incoming requests on any available port if the
+.BR \%chkmadd.exp (1)
 program can be executed on that server.  See the
 .B -l
-and
-.B -s
-options for details.
+option for details.
 .B (TODO)
 
 .SH OPTIONS
@@ -219,20 +226,20 @@ or where the
 .I SERVER
 should listen on
 .RB ( -l ).
-The default is telnet(23)/tcp.
+The default is ssh(22)/tcp unless specified otherwise in
+.BR \%ssh_config (5).
 .br
 This option overrides the CHKMADD_PORT environment variable (see below).
-Specify
+Use
 .RB ` "-p -" '
-for the default port.
-.B (TODO)
+to make sure that the default port is used.
 
 .IP "\fB-s\fP, \fB--server\fP \fISERVER\fP"
 Specify a
 .B chkmadd
 \fISERVER\fP to which the request is being forwarded by the local program.
 Introduced primarily to allow clients within blacklisted IP address ranges
-(such as computers of dial-up users having dynamic IP addresses) to use servers
+(such as computers of \%dial-up users having dynamic IP addresses) to use servers
 that are not blacklisted.  A
 .B chkmadd
 server is a server which can be reached via
@@ -246,10 +253,7 @@ installed.
 This option overrides the CHKMADD_SERVER environment variable (see below).
 Use
 .RB ` "-s -" '
-to make sure that a so predefined
-.I SERVER
-is NOT used.
-.B (TODO)
+to make sure that a so predefined server is NOT used.
 
 .IP "\fB-t\fP, \fB--timeout\fP \fISECONDS\fP"
 Specify the number of seconds the
@@ -316,7 +320,6 @@ Specifies the
 to be used by default.  If set,
 .B -p
 is given implicitly.
-.B (TODO)
 
 .TP
 .B CHKMADD_SERVER
@@ -326,7 +329,6 @@ Specifies the
 to be used by default.  If set,
 .B -s
 is given implicitly.
-.B (TODO)
 
 .TP
 .B TERM
