@@ -41,12 +41,12 @@ verifies
 .IR EMAIL_ADDRESS (es)
 by retrieving the mail exchangers (\fSMX\fPs) for their domain part(s)
 with
-.BR host (1)
+.BR \%host (1)
 and
-.BR grep (1),
+.BR \%grep (1),
 and accessing them via
 .SM SMTP
-.BR telnet (1).
+.BR \%telnet (1).
 From version
 .B 0.1.2.2004062116
 on, it also tries the A record of all domains part(s) if no MX record
@@ -56,7 +56,7 @@ for either domain is present.
 From version
 .B 0.1.2.2004021702
 on, this program supports an
-.BR expect (1)
+.BR \%expect (1)
 script for talking
 .SM SMTP
 to \fSMX\fPs automagically.  That script is specified as follows (key words
@@ -90,15 +90,15 @@ case.  It MUST NOT affect the execution of calling programs directly.
 Builds
 .B 2004022414
 and later of the
-.BR chkmadd.exp (3)
+.BR \%chkmadd.exp (3)
 script contained in the distribution meet the argument and exit status
 requirements.  (They do not meet the requirements for options yet; however,
 that is a requirement for further customization of the address checks.
-.BR TODO ", see below.)"
+.BR \%TODO ", see below.)"
 
 .PP        
 If
-.BR expect (1)
+.BR \%expect (1)
 or the script described above is not available, you are required to type
 SMTP commands for verification (see
 .SM RFC
@@ -108,7 +108,7 @@ and
 .B RCPT
 commands.)  Note that you SHOULD NOT use this script in a non-interactive
 environment in this case.
-.BR telnet (1)
+.BR \%telnet (1)
 may time out but the delay could interrupt that environment, and you will
 receive no useful feedback anyway.  Use the
 .B -a
@@ -146,9 +146,9 @@ option for details.
 
 .IP "\fB-a\fP, \fB--auto\fP" 
 Force automatic verification via the
-.BR expect (1)
+.BR \%expect (1)
 \fISCRIPT\fP.  If the
-.BR expect (1)
+.BR \%expect (1)
 program or the
 .I SCRIPT
 is not available, returns with exit status
@@ -159,22 +159,22 @@ for all addresses.
 .IP "\fB-d\fP, \fB--force-dupes\fP"
 Force MXs with different host name but same IP address to be asked for
 \fIEMAIL_ADDRESS\fP.  This is a
-.BR TODO ;
+.BR \%TODO ;
 the current behavior is to ask every MX regardless of the resolved IP address.
 
 .IP "\fB-E\fP, \fB--expect\fP \fIPROGRAM\fP"
 Specify the
-.BR expect (1)
+.BR \%expect (1)
 .I PROGRAM
 to be used.  The default is \fI/usr/bin/expect\fP.
 
 .IP "\fB-e\fP, \fB--expect-script\fP \fISCRIPT\fP"
 Specify the
-.BR expect (1)
+.BR \%expect (1)
 .I SCRIPT
 to be used.  The default is
 .br
-.BR chkmadd.exp (1)
+.BR \%chkmadd.exp (1)
 in the
 .B chkmadd
 program directory.
@@ -186,12 +186,13 @@ from \fIFILE\fP.  The default is the standard
 input which can be equally specified as `-'.
 
 .IP "\fB-H\fP, \fB--force-helo\fP"
-Force HELO command.  RFC\ 2821 does not require a client to send HELO, and the
-default is not to send it unless MAIL\ FROM fails; in fact, the RFC says that
-`HELO' SHOULD NOT be required for further protocol communication.  However, some
-broken/suspicious configured MTAs (like ESMTP) will terminate the connection
-when receiving MAIL\ FROM or RCPT\ TO without previous HELO (this is usually
-paraphrased as and sometimes even responded with "Polite people say HELO.")  
+Force HELO command.  RFC\ 2821 (SMTP) does not require a client to send HELO,
+and the default is not to send it unless MAIL\ FROM fails; in fact, the RFC
+says that `HELO' SHOULD NOT be required for further protocol communication.
+However, some b0rken/suspiciously configured MTAs (like ESMTP) will terminate
+the connection when receiving MAIL\ FROM or RCPT\ TO without previous HELO
+(this is usually paraphrased as and sometimes even responded with
+"Polite people say HELO.")  
 .B (TODO)
 
 .IP "\fB-h\fP, \fB--help\fP"
@@ -202,7 +203,7 @@ Display this help screen and exit with status
 Listen for parameters from stdin or on the
 .I PORT
 specified with
-.BR -p .
+.BR \%-p .
 Corresponds remotely with the locally given
 .B -s
 option.  To prevent misuse, this works together with
@@ -210,9 +211,9 @@ option.  To prevent misuse, this works together with
 only if the
 .I SERVER
 provides both
-.BR expect (1)
+.BR \%expect (1)
 and the
-.BR chkmadd.exp (1)
+.BR \%chkmadd.exp (1)
 program, i.e.
 .B -a
 is given implicitly.
@@ -243,11 +244,11 @@ Introduced primarily to allow clients within blacklisted IP address ranges
 that are not blacklisted.  A
 .B chkmadd
 server is a server which can be reached via
-.BR ssh (1)
+.BR \%ssh (1)
 and has both
 .B chkmadd
 and (as a security precaution)
-.BR expect (1)
+.BR \%expect (1)
 installed.  
 .br
 This option overrides the CHKMADD_SERVER environment variable (see below).
@@ -257,7 +258,7 @@ to make sure that a so predefined server is NOT used.
 
 .IP "\fB-t\fP, \fB--timeout\fP \fISECONDS\fP"
 Specify the number of seconds the
-.BR expect (1)
+.BR \%expect (1)
 \fISCRIPT\fP should wait for a server reponse to a command before trying the
 next alternative (or abort if there are no more alternatives).  The default
 is
@@ -277,8 +278,8 @@ Skip
 command.  Some completely b0rken MTAs are already offended by VRFY before
 HELO/MAIL\ FROM, and terminate the connection, or respond with an invalid
 status code then.  That would confuse
-.BR chkmadd.exp (1)
-and return false negatives, which can be prevented by using this option.
+.BR \%chkmadd.exp (1)
+and cause false negatives, which can be prevented by using this option.
 .B (TODO)
 
 .IP "\fIEMAIL_ADDRESS\fP"
@@ -331,7 +332,7 @@ is given implicitly.
 .TP
 .B TERM
 If not `raw' and
-.BR stty (1)
+.BR \%stty (1)
 returns the size, use colored output with ANSI escape sequences.
 
 .SH FILES
@@ -339,12 +340,12 @@ returns the size, use colored output with ANSI escape sequences.
 .TP
 .I /usr/bin/expect
 Default location of the
-.BR expect (1)
+.BR \%expect (1)
 program.
 .TP
 .I ./chkmadd.exp
 Default location of the
-.BR chkmadd.exp (1)
+.BR \%chkmadd.exp (1)
 script.
 
 
@@ -361,21 +362,16 @@ script.
 
 .PP
 .SM RFC
-2119 -- Key words for use in RFCs to Indicate Requirement Levels,
-S. Bradner, March 1997.  <\fIhttp://www.ietf.org/rfc/rfc2119.txt\fP>
+2119 -- Key\ words for\ use in\ RFCs to\ Indicate Requirement\ Levels,
+S.\ Bradner, March\ 1997.  \%<\fIhttp://www.ietf.org/rfc/rfc2119.txt\fP>
 
 .PP
 .SM RFC
-2821 -- Simple Mail Transfer Protocol (\fSSMTP\fP),
-J. Klensin, April 2001.  <\fIhttp://www.ietf.org/rfc/rfc2821.txt\fP>
-
-.PP
-.BR expect (1)
-<\fIhttp://expect.nist.gov/\fP>,
-.BR chkmadd.exp (1)
+2821 -- Simple Mail Transfer\ Protocol (\fSSMTP\fP),
+J.\ Klensin, April\ 2001.  \%<\fIhttp://www.ietf.org/rfc/rfc2821.txt\fP>
 
 .SH BUGS
-None known.  Please report bugs to <chkmadd@PointedEars.de>.
+None known.  Please report bugs to \%<chkmadd@PointedEars.de>.
 
 
 .SH NOTES
@@ -396,7 +392,7 @@ Service Pack 4 \fB[5]\fP.
 \fB[5]\fP <\fIhttp://www.microsoft.com/windows2000/\fP>
 
 .SH "LEGAL NOTICE"
-Copyright (c) 2003-2006  Thomas Lahn <mehl@PointedEars.de>
+Copyright\ (c)\ 2003-2006  Thomas\ Lahn \%<mehl@PointedEars.de>
 .PP
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
