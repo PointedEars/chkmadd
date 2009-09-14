@@ -132,7 +132,8 @@ lappend pargs [lrange $argv $i end]
 set host [lindex $pargs 0]
 set addr [lindex $pargs 1]
 
-# expect default is 10
+# cannot rely on expect default being 10
+set timeout 10
 if {[llength $pargs] > 2} {
   set timeout [lindex $pargs 2]
 }
