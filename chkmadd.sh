@@ -520,7 +520,8 @@ is definitely not a (valid) e-mail address." ) | $fmt
 
         exit_code=$?
         if [ ${exit_code} -eq 0 ]; then
-          [ -z "`echo "${mx_query}" | egrep -e '\*\*\*.+non-existent'`" ] && break
+          [ -z "`echo "${mx_query}" | egrep -e '\*\*\*.+non-existent'`" ] &&
+            break
         fi
       fi
 
@@ -578,7 +579,6 @@ ${mxs}" >&2
           ${_exp} ${_exp_script} ${skip_verify} "${hosts[$j]}" "$i" $timeout >/dev/null
         fi
       fi
-
   
       exit_code=$?
       if [ $exit_code -eq 0 ]; then
