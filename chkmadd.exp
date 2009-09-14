@@ -219,7 +219,7 @@ set TELNET_CLOSED "not found|unable|no route|connection closed|timed out"
 spawn telnet -- "$host" smtp
 trap {logout $E_ERROR} {SIGINT SIGTERM}
 
-set thishost [exec hostname 2>/dev/null]
+set thishost [exec hostname -f 2>/dev/null]
 if {$thishost == ""} {
   set thishost "127.0.0.1"
 }
