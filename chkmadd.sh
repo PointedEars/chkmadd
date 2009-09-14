@@ -413,7 +413,7 @@ do
     echo "Verifying <$i>..." >&2
   fi
 
-atext="[A-Za-z0-9!#-\\'*+/=?^_\\\`{|}~-]"
+atext="[A-Za-z0-9!#\$%&'*+/=?^_\`{|}~-]"
 dot_atom_text="$atext+(\\.$atext+)*"
 dot_atom=$dot_atom_text
   
