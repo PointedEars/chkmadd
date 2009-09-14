@@ -512,6 +512,7 @@ is definitely not a (valid) e-mail address." ) | $fmt
       
       mx_query=`host -t A "${domain}" 2>&1`
       exit_code=$?
+### FIXME: same condition twice; TODO: check if we have host or nslookup first
       if [ ${exit_code} -eq 0 ]; then
         [ -z "`echo "${mx_query}" | grep -e ';;\|\*\*\|not exist'`" ] && break
       elif [ ${exit_code} -eq 0 ]; then
