@@ -1,6 +1,6 @@
 #!/bin/bash
 appname=${0##*/}
-ver=0.1.5.2009020211
+ver=0.1.5.2009091412
 copy=2003-2009
 mail=mehl@PointedEars.de
 mail_feedback=chkmadd@PointedEars.de
