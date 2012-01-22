@@ -1,4 +1,5 @@
-#! /usr/bin/expect -D 1
+#! /usr/bin/expect
+##! /usr/bin/expect -D 1
 
 set version       "0.1.4.2009091412"
 set copy          "2004-2009"
