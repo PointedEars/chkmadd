@@ -1,8 +1,8 @@
 #! /usr/bin/expect
 ##! /usr/bin/expect -D 1
 
-set version       "0.1.4.2009091412"
-set copy          "2004-2009"
+set version       "0.1.7.20120123"
+set copy          "2004-2012"
 set mail          "mehl@PointedEars.de"
 set mail_feedback "chkmadd@PointedEars.de"
 set latest_uri    "http://PointedEars.de/tools/network/chkmadd/"
