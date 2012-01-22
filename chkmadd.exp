@@ -304,7 +304,7 @@ expect {
       -re "\n$SMTP_OUT_OF_SPACE$chatty" {
         logout $E_NO_ERROR
       }
-      -re "\n($SMTP_BAD_SEQUENCE|$SMTP_UNKNOWN_COMMAND|$SMTP_MAILBOX_NA)$chatty" {
+      -re "\n($SMTP_BAD_SEQUENCE|$SMTP_UNKNOWN_COMMAND|$SMTP_MAILBOX_NA|$SMTP_TRANSACTION_FAIL)$chatty" {
         # "Polite people say HELO first" (recommended against by the RFC)
         # NOTE: There are very buggy MTAs out there (e.g. Spiderweb ESMTP)
         #       which say they don't even *know* MAIL FROM before HELO,
