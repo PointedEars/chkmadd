@@ -224,6 +224,8 @@ if {$thishost == ""} {
   set thishost "127.0.0.1"
 }
 
+set vrfy_fail 0
+
 expect {
   -nocase -re "$TELNET_CLOSED$chatty" {
     exit $E_ADDRESS_CANNOT_DELIVER
@@ -262,6 +264,7 @@ expect {
         }
         -re "\n($SMTP_MAILBOX_NA|$SMTP_NO_VERIFY|$SMTP_COMMAND_NA|$SMTP_SYNTAX_ERROR|$SMTP_UNKNOWN_COMMAND|$SMTP_PARAM_NA|$SMTP_LOCAL_ERROR|$SMTP_BAD_SEQUENCE)$chatty" {
           # cannot VRFY, continue; SMTP_BAD_SEQUENCE only for graceful degradation
+          set vrfy_fail 1
         }
         default {}
       }
