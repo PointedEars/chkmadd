@@ -417,7 +417,7 @@ atext="[A-Za-z0-9!#\$%&'*+/=?^_\`{|}~-]"
 dot_atom_text="$atext+(\\.$atext+)*"
 dot_atom=$dot_atom_text
   
-  if [ -z "`echo "$i" | egrep -e "${dot_atom}@${dot_atom}"`" ]; then
+  if [ -z "`echo "$i" | LC_ALL=C egrep -e "${dot_atom}@${dot_atom}"`" ]; then
     if [ -n "$verbose" ]; then
       ( echo "<$i>
 is definitely not a (valid) e-mail address, since it lacks compliance
