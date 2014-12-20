@@ -385,8 +385,8 @@ IFS="
   [ "$port" = "-" ] && unset port
 
   # TODO: Pass all options
-  ssh "$server" "${port:+-p $port}" \
-    chkmadd $verbose ${timeout:+-t $timeout} -- $*
+  ssh "$server" ${port:+-p "$port"} \
+    chkmadd $verbose ${timeout:+-t $timeout} -- ${addresses[@]}
 
   exit $?
 }
